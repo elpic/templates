@@ -1,0 +1,24 @@
+# Python + uv container blueprint
+#
+# Render:
+#   blueprint render setup.bp --template Dockerfile.tmpl --var APP_NAME=myapp --output Dockerfile
+#   blueprint render setup.bp --template Dockerfile.local.tmpl --var APP_NAME=myapp --output Dockerfile.local
+#
+# Check drift:
+#   blueprint check setup.bp --template Dockerfile.tmpl --against Dockerfile --var APP_NAME=myapp
+
+# ── Required ────────────────────────────────────────────────────────────────
+var APP_NAME          # e.g. myapp — used as the module entrypoint
+
+# ── Optional (override with --var) ──────────────────────────────────────────
+var REGISTRY docker.io          # container registry (docker.io, ghcr.io, ...)
+var WORKDIR /app                # working directory inside the container
+var PORT 8000                   # port exposed by the application
+var ENTRYPOINT python            # entrypoint binary (python, gunicorn, uvicorn, ...)
+var UV_VERSION latest            # pin uv version or use "latest"
+
+# ── Versions (single source of truth) ───────────────────────────────────────
+mise python@3.12.3
+
+# ── System dependencies ──────────────────────────────────────────────────────
+install git curl build-essential libpq-dev libssl-dev ca-certificates on: [linux]

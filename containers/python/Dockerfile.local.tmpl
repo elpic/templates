@@ -1,0 +1,30 @@
+# syntax=docker/dockerfile:1
+# Generated from setup.bp — do not edit directly.
+# Regenerate: blueprint render setup.bp --template Dockerfile.local.tmpl --var APP_NAME={{ var "APP_NAME" }} --output Dockerfile.local
+# Check drift: blueprint check setup.bp --template Dockerfile.local.tmpl --against Dockerfile.local --var APP_NAME={{ var "APP_NAME" }}
+
+FROM {{ var "REGISTRY" }}/python:{{ mise "python" }}-slim
+
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:{{ var "UV_VERSION" }} /uv /usr/local/bin/uv
+
+ENV UV_LINK_MODE=copy \
+    UV_NO_CACHE=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    {{ packages }} \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR {{ var "WORKDIR" }}
+
+# Install dependencies — code is volume-mounted at runtime so no COPY
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-install-project
+
+EXPOSE {{ var "PORT" }}
+
+# Override CMD in docker-compose to run dev server, tests, etc.
+ENTRYPOINT ["{{ var "ENTRYPOINT" }}"]
+CMD ["-m", "{{ var "APP_NAME" }}"]
