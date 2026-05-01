@@ -7,28 +7,11 @@ set -e
 # Pre-start hooks         #
 ###########################
 
-# Django — uncomment the commands your app needs:
+# Add your pre-start commands here. Examples:
 #
-# echo 'Running collectstatic'
-# python manage.py collectstatic --clear --no-input -v 0
-#
-# echo 'Running migrations'
-# python manage.py migrate
-
-###########################
-# Process selection       #
-###########################
-
-# Celery worker / beat — driven by environment variables so the same
-# image can run as web, worker, or scheduler without rebuilding.
-#
-# if [ "$RUN_CELERY_WORKER" = "true" ]; then
-#     echo "Running celery worker"
-#     exec python -m celery -A {{ var "APP_NAME" }}.celery worker
-# elif [ "$RUN_CELERY_BEAT" = "true" ]; then
-#     echo "Running celery beat"
-#     exec python -m celery -A {{ var "APP_NAME" }}.celery beat
-# fi
+# Django:
+#   python manage.py collectstatic --clear --no-input -v 0
+#   python manage.py migrate
 
 ###########################
 # Start application       #
