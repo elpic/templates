@@ -1,9 +1,11 @@
 # syntax=docker/dockerfile:1
 # Generated from setup.bp — do not edit directly.
-# Regenerate: blueprint render setup.bp --template Dockerfile.local.tmpl --var APP_NAME={{ var "APP_NAME" }} --output Dockerfile.local
-# Check drift:  blueprint check setup.bp --template Dockerfile.local.tmpl --against Dockerfile.local --var APP_NAME={{ var "APP_NAME" }}
+# Regenerate: blueprint render setup.bp --template . --output . --var APP_NAME={{ var "APP_NAME" }}
+# Check drift:  blueprint check setup.bp --template . --against . --var APP_NAME={{ var "APP_NAME" }}
 
-# ── Build arguments (override with --build-arg) ───────────────────────────────
+###########################
+# Build arguments         #
+###########################
 ARG PYTHON_VERSION={{ mise "python" }}
 ARG UV_VERSION={{ default "UV_VERSION" "latest" }}
 ARG REGISTRY={{ default "REGISTRY" "docker.io" }}
@@ -14,8 +16,17 @@ FROM ${REGISTRY}/python:${PYTHON_VERSION}-slim
 ARG UV_VERSION
 ARG WORKDIR
 
+LABEL maintainer="{{ var "APP_NAME" }}"
+
+###########################
+# Process manager         #
+###########################
+# Install uv — fast Python package manager
 COPY --from=ghcr.io/astral-sh/uv:${UV_VERSION} /uv /uvx /usr/local/bin/
 
+###########################
+# System dependencies     #
+###########################
 # Install all system packages (build + runtime) — dev image, no size restriction
 RUN apt-get update && apt-get install -y --no-install-recommends \
     {{ packages }} \
@@ -29,8 +40,14 @@ ENV UV_LINK_MODE=copy \
     PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
+###########################
+# Set working directory   #
+###########################
 WORKDIR ${WORKDIR}
 
+###########################
+# Manifest files          #
+###########################
 # Install all dependencies including dev — bind-mount lockfiles to avoid extra layer.
 # Application code is volume-mounted at runtime — no COPY needed.
 RUN --mount=type=cache,target=/root/.cache/uv \
@@ -38,6 +55,9 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     uv sync --frozen --no-install-project
 
+###########################
+# Run the app             #
+###########################
 EXPOSE {{ default "PORT" "8000" }}
 
 # No entrypoint script in dev — run commands directly via docker-compose.

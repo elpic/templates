@@ -1,21 +1,28 @@
 # syntax=docker/dockerfile:1
 # Generated from setup.bp — do not edit directly.
-# Regenerate: blueprint render setup.bp --template Dockerfile.tmpl --var APP_NAME={{ var "APP_NAME" }} --output Dockerfile
-# Check drift:  blueprint check setup.bp --template Dockerfile.tmpl --against Dockerfile --var APP_NAME={{ var "APP_NAME" }}
+# Regenerate: blueprint render setup.bp --template . --output . --var APP_NAME={{ var "APP_NAME" }}
+# Check drift:  blueprint check setup.bp --template . --against . --var APP_NAME={{ var "APP_NAME" }}
 
-# ── Build arguments (override with --build-arg) ───────────────────────────────
+###########################
+# Build arguments         #
+###########################
 # These are build-time only and do not leak into the final image.
 ARG PYTHON_VERSION={{ mise "python" }}
 ARG UV_VERSION={{ default "UV_VERSION" "latest" }}
 ARG REGISTRY={{ default "REGISTRY" "docker.io" }}
 ARG WORKDIR={{ default "WORKDIR" "/app" }}
 
-# ── Stage 1: dependencies ─────────────────────────────────────────────────────
+###########################
+# Stage 1: dependencies   #
+###########################
 FROM ${REGISTRY}/python:${PYTHON_VERSION}-slim AS deps
 
 ARG UV_VERSION
 ARG WORKDIR
 
+LABEL maintainer="{{ var "APP_NAME" }}"
+
+# Install uv — fast Python package manager
 COPY --from=ghcr.io/astral-sh/uv:${UV_VERSION} /uv /uvx /usr/local/bin/
 
 ENV UV_LINK_MODE=copy \
@@ -25,11 +32,12 @@ ENV UV_LINK_MODE=copy \
     UV_PYTHON_DOWNLOADS=never \
     VIRTUAL_ENV=${WORKDIR}/.venv
 
-# Install build-only system packages (not present in the final image)
+# Install build-only system packages — not present in the final image
 RUN apt-get update && apt-get install -y --no-install-recommends \
     {{ packages "" "build" }} \
     && rm -rf /var/lib/apt/lists/*
 
+# Set working directory
 WORKDIR ${WORKDIR}
 
 # Install only production dependencies — bind-mount lockfiles so they don't
@@ -39,7 +47,9 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     uv sync --frozen --no-install-project --no-dev
 
-# ── Stage 2: runtime ──────────────────────────────────────────────────────────
+###########################
+# Stage 2: runtime        #
+###########################
 FROM ${REGISTRY}/python:${PYTHON_VERSION}-slim AS runtime
 
 ARG WORKDIR
@@ -53,6 +63,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN groupadd --gid 1001 app \
     && useradd --uid 1001 --gid app --shell /bin/bash --no-create-home app
 
+# Set working directory
 WORKDIR ${WORKDIR}
 
 # Copy virtualenv from deps stage and application code
@@ -71,11 +82,17 @@ ENV PATH="${WORKDIR}/.venv/bin:$PATH" \
     PYTHONFAULTHANDLER=1 \
     PYTHONHASHSEED=random
 
+###########################
+# Metadata                #
+###########################
 # OCI image labels
 LABEL org.opencontainers.image.title="{{ var "APP_NAME" }}" \
       org.opencontainers.image.source="" \
       org.opencontainers.image.licenses=""
 
+###########################
+# Run the app             #
+###########################
 EXPOSE {{ default "PORT" "8000" }}
 
 # Increase start-period to allow for migrations, warm-up, etc.
