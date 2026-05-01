@@ -10,7 +10,8 @@ Multi-stage production Dockerfile and a dev variant for Python projects. Both ar
 | `Dockerfile.tmpl` | Production — two-stage, non-root user, minimal final image |
 | `Dockerfile.local.tmpl` | Development — single stage, volume-mounted code, dev deps included |
 | `entrypoint.sh.tmpl` | Production entrypoint — runs pre-start tasks (migrations) then execs CMD |
-| `.dockerignore` | Excludes venv, cache, secrets, and editor files from build context |
+| `.dockerignore.tmpl` | Excludes venv, cache, secrets, and editor files from build context |
+| `.gitignore.tmpl` | Standard Python gitignore |
 
 ## Variables
 
