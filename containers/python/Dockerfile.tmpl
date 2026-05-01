@@ -80,5 +80,6 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=120s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:{{ default "PORT" "8000" }}/health')"
 
 # entrypoint.sh handles pre-start tasks; CMD is the actual application command.
+# Default: python -m <APP_NAME>. Override with --var CMD="gunicorn myapp.wsgi"
 ENTRYPOINT ["./entrypoint.sh"]
-CMD ["python", "-m", "{{ var "APP_NAME" }}"]
+CMD {{ default "CMD" (printf "python -m %s" (var "APP_NAME")) | toArgs }}

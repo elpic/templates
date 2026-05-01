@@ -39,5 +39,5 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 EXPOSE {{ default "PORT" "8000" }}
 
 # No entrypoint script in dev — run commands directly via docker-compose.
-# Override CMD to run the dev server, shell, tests, etc.
-CMD ["python", "-m", "{{ var "APP_NAME" }}"]
+# Default: python -m <APP_NAME>. Override with --var CMD="uvicorn myapp.main:app --reload"
+CMD {{ default "CMD" (printf "python -m %s" (var "APP_NAME")) | toArgs }}

@@ -23,6 +23,7 @@ var APP_NAME          # Python module used as entrypoint (python -m <APP_NAME>)
 # var PORT 8000                # default: 8000
 # var WORKDIR /app             # default: /app
 # var UV_VERSION latest        # default: latest
+# var CMD python -m myapp      # default: python -m <APP_NAME> — override for gunicorn/uvicorn
 
 # ── Versions (single source of truth) ────────────────────────────────────────
 mise python@3.12.3
