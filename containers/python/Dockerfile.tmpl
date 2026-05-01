@@ -22,6 +22,11 @@ ENV UV_LINK_MODE=copy \
     UV_COMPILE_BYTECODE=1 \
     UV_NO_PROGRESS=1
 
+# Install build-only system packages (not present in the final image)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    {{ packages "" "build" }} \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR ${WORKDIR}
 
 # Install only production dependencies — bind-mount lockfiles so they don't
@@ -38,7 +43,7 @@ ARG WORKDIR
 
 # Install only runtime system packages — no build tools
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    {{ packages }} \
+    {{ packages "" "runtime" }} \
     && rm -rf /var/lib/apt/lists/*
 
 # Non-root user — uid/gid 1001 avoids conflicts with common system users

@@ -32,7 +32,7 @@ Python version comes from `mise python@x.y.z` in `setup.bp` — rendered as a bu
 
 **2. Update `setup.bp`:**
 - Set the Python version in `mise python@x.y.z`
-- Add runtime system packages to `install ... on: [linux]`
+- Add system packages with `stage: build` (compile-time only) or `stage: runtime` (final image)
 - Uncomment any optional vars you want to pin project-wide
 
 **3. Render:**
@@ -111,3 +111,4 @@ services:
 - `HEALTHCHECK` with `--start-period=120s` — accounts for migrations and warm-up
 - OCI image labels (`org.opencontainers.image.*`) — fill in `source` and `licenses`
 - `.dockerignore` — excludes `.venv`, secrets, editor files, and build artifacts
+- `stage: build` / `stage: runtime` on `install` rules — build tools go in the deps stage only, runtime packages go in the final image only; dev image gets both via `{{ packages }}`

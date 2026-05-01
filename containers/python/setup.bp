@@ -29,6 +29,8 @@ var APP_NAME          # Python module used as entrypoint (python -m <APP_NAME>)
 # ── Versions (single source of truth) ────────────────────────────────────────
 mise python@3.12.3
 
-# ── Runtime system dependencies ──────────────────────────────────────────────
-# Only include what the running app needs — build tools go in the build stage.
-install libpq5 ca-certificates on: [linux]
+# ── System dependencies ───────────────────────────────────────────────────────
+# Build-stage packages are available during compilation but not in the final image.
+# Runtime packages are copied into the final image only.
+install build-essential libpq-dev on: [linux] stage: build
+install libpq5 ca-certificates on: [linux] stage: runtime
