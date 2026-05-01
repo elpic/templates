@@ -56,6 +56,10 @@ WORKDIR ${WORKDIR}
 COPY --from=deps --chown=app:app ${WORKDIR}/.venv .venv
 COPY --chown=app:app . .
 
+# entrypoint.sh runs pre-start tasks (migrations, etc.) then execs CMD
+COPY --chown=app:app entrypoint.sh .
+RUN chmod +x entrypoint.sh
+
 USER app
 
 ENV PATH="${WORKDIR}/.venv/bin:$PATH" \
@@ -75,5 +79,6 @@ EXPOSE {{ default "PORT" "8000" }}
 HEALTHCHECK --interval=30s --timeout=5s --start-period=120s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:{{ default "PORT" "8000" }}/health')"
 
-ENTRYPOINT ["{{ default "ENTRYPOINT" "python" }}"]
-CMD ["-m", "{{ var "APP_NAME" }}"]
+# entrypoint.sh handles pre-start tasks; CMD is the actual application command.
+ENTRYPOINT ["./entrypoint.sh"]
+CMD ["python", "-m", "{{ var "APP_NAME" }}"]

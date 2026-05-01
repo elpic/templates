@@ -1,14 +1,13 @@
 # Python container blueprint
 #
-# Render:
-#   blueprint render setup.bp --template Dockerfile.tmpl --var APP_NAME=myapp --output Dockerfile
-#   blueprint render setup.bp --template Dockerfile.local.tmpl --var APP_NAME=myapp --output Dockerfile.local
+# Render all templates into current directory:
+#   blueprint render setup.bp --template . --output . --var APP_NAME=myapp
 #
 # Check drift:
-#   blueprint check setup.bp --template Dockerfile.tmpl --against Dockerfile --var APP_NAME=myapp
+#   blueprint check setup.bp --template . --against . --var APP_NAME=myapp
 #
 # Override any template default at render time with --var, e.g.:
-#   blueprint render setup.bp --template Dockerfile.tmpl \
+#   blueprint render setup.bp --template . --output . \
 #     --var APP_NAME=myapp \
 #     --var REGISTRY=ghcr.io \
 #     --var PORT=9000
@@ -23,7 +22,6 @@ var APP_NAME          # Python module used as entrypoint (python -m <APP_NAME>)
 # var REGISTRY docker.io       # default: docker.io
 # var PORT 8000                # default: 8000
 # var WORKDIR /app             # default: /app
-# var ENTRYPOINT python        # default: python
 # var UV_VERSION latest        # default: latest
 
 # ── Versions (single source of truth) ────────────────────────────────────────

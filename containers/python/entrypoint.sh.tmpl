@@ -1,0 +1,15 @@
+#!/bin/sh
+# Generated from setup.bp — do not edit directly.
+# Regenerate: blueprint render setup.bp --template entrypoint.sh.tmpl --var APP_NAME={{ var "APP_NAME" }} --output entrypoint.sh
+set -e
+
+# ── Pre-start hooks ───────────────────────────────────────────────────────────
+# Run database migrations before starting the application.
+# Remove or replace with your own pre-start commands.
+echo "Running migrations..."
+python -m {{ var "APP_NAME" }}.manage migrate --noinput 2>/dev/null || \
+    python -m alembic upgrade head 2>/dev/null || \
+    true  # remove this fallback once you've set up your migration tool
+
+# ── Start application ─────────────────────────────────────────────────────────
+exec "$@"

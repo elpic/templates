@@ -38,6 +38,6 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 EXPOSE {{ default "PORT" "8000" }}
 
-# Override CMD via docker-compose to run the dev server, shell, tests, etc.
-ENTRYPOINT ["{{ default "ENTRYPOINT" "python" }}"]
-CMD ["-m", "{{ var "APP_NAME" }}"]
+# No entrypoint script in dev — run commands directly via docker-compose.
+# Override CMD to run the dev server, shell, tests, etc.
+CMD ["python", "-m", "{{ var "APP_NAME" }}"]
