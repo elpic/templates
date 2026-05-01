@@ -4,12 +4,13 @@
 set -e
 
 # ── Pre-start hooks ───────────────────────────────────────────────────────────
-# Run database migrations before starting the application.
-# Remove or replace with your own pre-start commands.
-echo "Running migrations..."
-python -m {{ var "APP_NAME" }}.manage migrate --noinput 2>/dev/null || \
-    python -m alembic upgrade head 2>/dev/null || \
-    true  # remove this fallback once you've set up your migration tool
+# Add your pre-start commands here. Example: run database migrations.
+#
+# Django:
+#   python -m {{ var "APP_NAME" }}.manage migrate --noinput
+#
+# Alembic:
+#   python -m alembic upgrade head
 
 # ── Start application ─────────────────────────────────────────────────────────
 exec "$@"
