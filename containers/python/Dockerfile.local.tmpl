@@ -21,12 +21,14 @@ LABEL maintainer="{{ var "APP_NAME" }}"
 ###########################
 # Process manager         #
 ###########################
+
 # Install uv — fast Python package manager
 COPY --from=ghcr.io/astral-sh/uv:${UV_VERSION} /uv /uvx /usr/local/bin/
 
 ###########################
 # System dependencies     #
 ###########################
+
 # Install all system packages (build + runtime) — dev image, no size restriction
 RUN apt-get update && apt-get install -y --no-install-recommends \
     {{ packages }} \
@@ -43,11 +45,13 @@ ENV UV_LINK_MODE=copy \
 ###########################
 # Set working directory   #
 ###########################
+
 WORKDIR ${WORKDIR}
 
 ###########################
 # Manifest files          #
 ###########################
+
 # Install all dependencies including dev — bind-mount lockfiles to avoid extra layer.
 # Application code is volume-mounted at runtime — no COPY needed.
 RUN --mount=type=cache,target=/root/.cache/uv \
@@ -58,6 +62,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 ###########################
 # Run the app             #
 ###########################
+
 EXPOSE {{ default "PORT" "8000" }}
 
 # No entrypoint script in dev — run commands directly via docker-compose.
