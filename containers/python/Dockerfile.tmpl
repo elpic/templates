@@ -1,70 +1,74 @@
 # syntax=docker/dockerfile:1
 # Generated from setup.bp — do not edit directly.
 # Regenerate: blueprint render setup.bp --template Dockerfile.tmpl --var APP_NAME={{ var "APP_NAME" }} --output Dockerfile
-# Check drift: blueprint check setup.bp --template Dockerfile.tmpl --against Dockerfile --var APP_NAME={{ var "APP_NAME" }}
+# Check drift:  blueprint check setup.bp --template Dockerfile.tmpl --against Dockerfile --var APP_NAME={{ var "APP_NAME" }}
 
-# ── Stage 1: dependencies ────────────────────────────────────────────────────
-FROM {{ var "REGISTRY" }}/python:{{ mise "python" }}-slim AS deps
+# ── Build arguments (override with --build-arg) ───────────────────────────────
+# These are build-time only and do not leak into the final image.
+ARG PYTHON_VERSION={{ mise "python" }}
+ARG UV_VERSION={{ default "UV_VERSION" "latest" }}
+ARG REGISTRY={{ default "REGISTRY" "docker.io" }}
+ARG WORKDIR={{ default "WORKDIR" "/app" }}
 
-# Install uv
-COPY --from=ghcr.io/astral-sh/uv:{{ var "UV_VERSION" }} /uv /usr/local/bin/uv
+# ── Stage 1: dependencies ─────────────────────────────────────────────────────
+FROM ${REGISTRY}/python:${PYTHON_VERSION}-slim AS deps
+
+ARG UV_VERSION
+ARG WORKDIR
+
+COPY --from=ghcr.io/astral-sh/uv:${UV_VERSION} /uv /uvx /usr/local/bin/
 
 ENV UV_LINK_MODE=copy \
     UV_COMPILE_BYTECODE=1 \
-    UV_NO_CACHE=1
+    UV_NO_PROGRESS=1
 
-WORKDIR {{ var "WORKDIR" }}
+WORKDIR ${WORKDIR}
 
-# Install dependencies only — layer is cached until lockfile changes
-COPY pyproject.toml uv.lock ./
+# Install only production dependencies — bind-mount lockfiles so they don't
+# create an extra layer. Layer is fully cached until pyproject.toml/uv.lock change.
 RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     uv sync --frozen --no-install-project --no-dev
 
-# ── Stage 2: build ───────────────────────────────────────────────────────────
-FROM {{ var "REGISTRY" }}/python:{{ mise "python" }}-slim AS build
+# ── Stage 2: runtime ──────────────────────────────────────────────────────────
+FROM ${REGISTRY}/python:${PYTHON_VERSION}-slim AS runtime
 
-COPY --from=ghcr.io/astral-sh/uv:{{ var "UV_VERSION" }} /uv /usr/local/bin/uv
+ARG WORKDIR
 
-ENV UV_LINK_MODE=copy \
-    UV_COMPILE_BYTECODE=1 \
-    UV_NO_CACHE=1
-
-WORKDIR {{ var "WORKDIR" }}
-
-# Copy deps from previous stage then install the project itself
-COPY --from=deps {{ var "WORKDIR" }}/.venv .venv
-COPY . .
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-dev
-
-# ── Stage 3: runtime ─────────────────────────────────────────────────────────
-FROM {{ var "REGISTRY" }}/python:{{ mise "python" }}-slim AS runtime
-
+# Install only runtime system packages — no build tools
 RUN apt-get update && apt-get install -y --no-install-recommends \
     {{ packages }} \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get purge -y --auto-remove
+    && rm -rf /var/lib/apt/lists/*
 
-# Non-root user for security
-RUN groupadd --gid 1001 app && useradd --uid 1001 --gid app --shell /bin/bash --create-home app
+# Non-root user — uid/gid 1001 avoids conflicts with common system users
+RUN groupadd --gid 1001 app \
+    && useradd --uid 1001 --gid app --shell /bin/bash --no-create-home app
 
-WORKDIR {{ var "WORKDIR" }}
+WORKDIR ${WORKDIR}
 
-# Copy only the built virtualenv and app code — no build tools in final image
-COPY --from=build --chown=app:app {{ var "WORKDIR" }}/.venv .venv
-COPY --from=build --chown=app:app {{ var "WORKDIR" }} .
+# Copy virtualenv from deps stage and application code
+COPY --from=deps --chown=app:app ${WORKDIR}/.venv .venv
+COPY --chown=app:app . .
 
 USER app
 
-ENV PATH="{{ var "WORKDIR" }}/.venv/bin:$PATH" \
-    PYTHONDONTWRITEBYTECODE=1 \
+ENV PATH="${WORKDIR}/.venv/bin:$PATH" \
     PYTHONUNBUFFERED=1 \
-    PYTHONFAULTHANDLER=1
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONFAULTHANDLER=1 \
+    PYTHONHASHSEED=random
 
-EXPOSE {{ var "PORT" }}
+# OCI image labels
+LABEL org.opencontainers.image.title="{{ var "APP_NAME" }}" \
+      org.opencontainers.image.source="" \
+      org.opencontainers.image.licenses=""
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:{{ var "PORT" }}/health')"
+EXPOSE {{ default "PORT" "8000" }}
 
-ENTRYPOINT ["{{ var "ENTRYPOINT" }}"]
+# Increase start-period to allow for migrations, warm-up, etc.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=120s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:{{ default "PORT" "8000" }}/health')"
+
+ENTRYPOINT ["{{ default "ENTRYPOINT" "python" }}"]
 CMD ["-m", "{{ var "APP_NAME" }}"]
