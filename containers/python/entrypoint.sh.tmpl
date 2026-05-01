@@ -1,16 +1,37 @@
 #!/bin/sh
 # Generated from setup.bp — do not edit directly.
-# Regenerate: blueprint render setup.bp --template entrypoint.sh.tmpl --var APP_NAME={{ var "APP_NAME" }} --output entrypoint.sh
+# Regenerate: blueprint render setup.bp --template . --output . --var APP_NAME={{ var "APP_NAME" }}
 set -e
 
-# ── Pre-start hooks ───────────────────────────────────────────────────────────
-# Add your pre-start commands here. Example: run database migrations.
-#
-# Django:
-#   python -m {{ var "APP_NAME" }}.manage migrate --noinput
-#
-# Alembic:
-#   python -m alembic upgrade head
+###########################
+# Pre-start hooks         #
+###########################
 
-# ── Start application ─────────────────────────────────────────────────────────
+# Django — uncomment the commands your app needs:
+#
+# echo 'Running collectstatic'
+# python manage.py collectstatic --clear --no-input -v 0
+#
+# echo 'Running migrations'
+# python manage.py migrate
+
+###########################
+# Process selection       #
+###########################
+
+# Celery worker / beat — driven by environment variables so the same
+# image can run as web, worker, or scheduler without rebuilding.
+#
+# if [ "$RUN_CELERY_WORKER" = "true" ]; then
+#     echo "Running celery worker"
+#     exec python -m celery -A {{ var "APP_NAME" }}.celery worker
+# elif [ "$RUN_CELERY_BEAT" = "true" ]; then
+#     echo "Running celery beat"
+#     exec python -m celery -A {{ var "APP_NAME" }}.celery beat
+# fi
+
+###########################
+# Start application       #
+###########################
+
 exec "$@"

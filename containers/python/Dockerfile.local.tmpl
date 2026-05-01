@@ -63,8 +63,12 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # Run the app             #
 ###########################
 
+# local-entrypoint.sh installs deps and runs pre-start tasks then execs CMD
+COPY local-entrypoint.sh .
+RUN chmod +x local-entrypoint.sh
+
 EXPOSE {{ default "PORT" "8000" }}
 
-# No entrypoint script in dev — run commands directly via docker-compose.
 # Default: python -m <APP_NAME>. Override with --var CMD="uvicorn myapp.main:app --reload"
+ENTRYPOINT ["./local-entrypoint.sh"]
 CMD {{ default "CMD" (printf "python -m %s" (var "APP_NAME")) | toArgs }}

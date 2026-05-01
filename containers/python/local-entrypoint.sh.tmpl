@@ -1,0 +1,29 @@
+#!/bin/sh
+# Generated from setup.bp — do not edit directly.
+# Regenerate: blueprint render setup.bp --template . --output . --var APP_NAME={{ var "APP_NAME" }}
+set -e
+
+###########################
+# Dependencies            #
+###########################
+
+echo 'Installing dependencies'
+uv sync
+
+###########################
+# Pre-start hooks         #
+###########################
+
+# Django — uncomment the commands your app needs:
+#
+# echo 'Running collectstatic'
+# uv run python manage.py collectstatic --clear --no-input -v 0
+#
+# echo 'Running migrations'
+# uv run python manage.py migrate
+
+###########################
+# Start application       #
+###########################
+
+exec "$@"
