@@ -1,0 +1,30 @@
+# GitHub Actions — Go integration workflow blueprint
+#
+# Render into your project:
+#   blueprint render setup.bp --template . --output .github/workflows --var APP_NAME=myapp
+#
+# Check drift:
+#   blueprint check setup.bp --template . --against .github/workflows --var APP_NAME=myapp
+#
+# Override any default at render time with --var, e.g.:
+#   blueprint render setup.bp --template . --output .github/workflows \
+#     --var APP_NAME=myapp \
+#     --var MAIN_BRANCH=master \
+#     --var RUNNER=self-hosted \
+#     --var CHECKOUT_VERSION=v3 \
+#     --var TEST_TASK=test:ci \
+#     --var LINT_TASK=lint \
+#     --var BUILD_TASK=build
+
+# ── Required ──────────────────────────────────────────────────────────────────
+var APP_NAME          # Name of the application (used in artifact names)
+
+# ── Optional overrides ────────────────────────────────────────────────────────
+# var MAIN_BRANCH main          # default: main
+# var RUNNER ubuntu-latest      # default: ubuntu-latest — set to self-hosted or a specific image
+# var CHECKOUT_VERSION v4       # default: v4 — version of actions/checkout to use
+# var TEST_TASK test:coverage   # mise task that runs tests and produces coverage.out
+# var LINT_TASK lint            # mise task for the linter
+# var BUILD_TASK build          # mise task that compiles / packages the app
+# var INTEGRATION_TASK test:integration  # mise task for integration tests
+# var TIMEOUT_MINUTES 10        # per-job timeout (minutes)

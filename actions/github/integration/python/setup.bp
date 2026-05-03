@@ -1,0 +1,28 @@
+# GitHub Actions — Python integration workflow blueprint
+#
+# Render into your project:
+#   blueprint render setup.bp --template . --output .github/workflows --var APP_NAME=myapp
+#
+# Check drift:
+#   blueprint check setup.bp --template . --against .github/workflows --var APP_NAME=myapp
+#
+# Override any default at render time with --var, e.g.:
+#   blueprint render setup.bp --template . --output .github/workflows \
+#     --var APP_NAME=myapp \
+#     --var MAIN_BRANCH=master \
+#     --var RUNNER=self-hosted \
+#     --var CHECKOUT_VERSION=v3 \
+#     --var LINT_TASK=lint \
+#     --var TEST_TASK=test:coverage
+
+# ── Required ──────────────────────────────────────────────────────────────────
+var APP_NAME          # Name of the application (used in artifact and image names)
+
+# ── Optional overrides ────────────────────────────────────────────────────────
+# var MAIN_BRANCH main          # default: main
+# var RUNNER ubuntu-latest      # default: ubuntu-latest — set to self-hosted or a specific image
+# var CHECKOUT_VERSION v4       # default: v4 — version of actions/checkout to use
+# var TEST_TASK test:coverage   # mise task that runs pytest and produces coverage.xml
+# var LINT_TASK lint            # mise task for ruff + mypy
+# var SECURITY_TASK security    # mise task for bandit + safety
+# var TIMEOUT_MINUTES 10        # per-job timeout (minutes)
