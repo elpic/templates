@@ -4,22 +4,23 @@ Composable GitHub Actions workflow templates.
 
 ## Available
 
-| Folder | Description |
-|--------|-------------|
-| [`integration/`](integration/) | PR integration workflow — tests, coverage diff, lint, build, integration tests, security |
+| Folder | Language | Description |
+|--------|----------|-------------|
+| [`integration/go/`](integration/go/) | Go | Tests with `go tool cover`, lint, build + artifact upload, integration tests, security |
+| [`integration/python/`](integration/python/) | Python | Tests with `pytest` + `coverage.xml`, lint, integration tests, security |
 
 ## Usage
 
 ```bash
-# Render into your project
+# Go — render into your project
 blueprint render setup.bp \
-  --template @github:elpic/templates@main:actions/github/integration \
+  --template @github:elpic/templates@main:actions/github/integration/go \
   --output .github/workflows \
   --var APP_NAME=myapp
 
-# Check for drift
-blueprint check setup.bp \
-  --template @github:elpic/templates@main:actions/github/integration \
-  --against .github/workflows \
+# Python — render into your project
+blueprint render setup.bp \
+  --template @github:elpic/templates@main:actions/github/integration/python \
+  --output .github/workflows \
   --var APP_NAME=myapp
 ```
