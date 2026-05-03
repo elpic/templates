@@ -1,0 +1,110 @@
+# Generated from setup.bp — do not edit directly.
+# Regenerate: blueprint render setup.bp --template . --output .github/workflows --var BLUEPRINT_FILE={{ var "BLUEPRINT_FILE" }} --var TEMPLATE={{ var "TEMPLATE" }} --var AGAINST={{ var "AGAINST" }}
+# Check drift:  blueprint check setup.bp --template . --against .github/workflows --var BLUEPRINT_FILE={{ var "BLUEPRINT_FILE" }} --var TEMPLATE={{ var "TEMPLATE" }} --var AGAINST={{ var "AGAINST" }}
+
+name: Blueprint Drift Check
+
+on:
+  pull_request:
+    branches:
+      - {{ default "MAIN_BRANCH" "main" }}
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+
+  ###########################
+  # Drift check             #
+  ###########################
+
+  blueprint-check:
+    name: Blueprint Drift Check
+    runs-on: {{ default "RUNNER" "ubuntu-latest" }}
+    timeout-minutes: {{ default "TIMEOUT_MINUTES" "5" }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@{{ default "CHECKOUT_VERSION" "v4" }}
+
+      - name: Install blueprint
+        run: |
+          VERSION="{{ default "BLUEPRINT_VERSION" "latest" }}"
+          REPO="elpic/blueprint"
+
+          # Resolve "latest" to the actual tag
+          if [ "$VERSION" = "latest" ]; then
+            VERSION=$(curl -fsSL "https://api.github.com/repos/${REPO}/releases/latest" \
+              | grep '"tag_name"' | sed 's/.*"tag_name": *"v\?\([^"]*\)".*/\1/')
+          fi
+
+          # Detect OS and arch
+          OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+          ARCH=$(uname -m)
+          case "$ARCH" in
+            x86_64)  ARCH="amd64" ;;
+            aarch64) ARCH="arm64" ;;
+          esac
+
+          BINARY="blueprint-${OS}-${ARCH}"
+          URL="https://github.com/${REPO}/releases/download/v${VERSION}/${BINARY}"
+
+          echo "Installing blueprint v${VERSION} (${OS}/${ARCH})"
+          curl -fsSL "$URL" -o /usr/local/bin/blueprint
+          chmod +x /usr/local/bin/blueprint
+          blueprint version
+
+      - name: Run blueprint check
+        id: check
+        run: |
+          blueprint check {{ var "BLUEPRINT_FILE" }} \
+            --template {{ var "TEMPLATE" }} \
+            --against {{ var "AGAINST" }}
+        continue-on-error: true
+
+      - name: Post drift comment on PR
+        if: steps.check.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ "{{" }} secrets.GITHUB_TOKEN {{ "}}" }}
+        run: |
+          PR_NUMBER=${{ "{{" }} github.event.pull_request.number {{ "}}" }}
+
+          COMMENT="## Blueprint Drift Detected ⚠️
+
+          One or more rendered files are out of date with their template.
+
+          **Blueprint file:** \`{{ var "BLUEPRINT_FILE" }}\`
+          **Template:** \`{{ var "TEMPLATE" }}\`
+          **Against:** \`{{ var "AGAINST" }}\`
+
+          Run locally to regenerate:
+          \`\`\`bash
+          blueprint render {{ var "BLUEPRINT_FILE" }} --template {{ var "TEMPLATE" }} --output {{ var "AGAINST" }}
+          \`\`\`"
+
+          COMMENT_ID=$(gh api repos/${{ "{{" }} github.repository {{ "}}" }}/issues/${PR_NUMBER}/comments \
+            --jq '.[] | select(.body | startswith("## Blueprint Drift Detected")) | .id' 2>/dev/null | head -1)
+          if [ -n "$COMMENT_ID" ]; then
+            gh api repos/${{ "{{" }} github.repository {{ "}}" }}/issues/comments/${COMMENT_ID} \
+              --method PATCH --field body="${COMMENT}"
+          else
+            gh pr comment ${PR_NUMBER} --body "${COMMENT}"
+          fi
+
+      - name: Remove resolved drift comment
+        if: steps.check.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ "{{" }} secrets.GITHUB_TOKEN {{ "}}" }}
+        run: |
+          PR_NUMBER=${{ "{{" }} github.event.pull_request.number {{ "}}" }}
+          COMMENT_ID=$(gh api repos/${{ "{{" }} github.repository {{ "}}" }}/issues/${PR_NUMBER}/comments \
+            --jq '.[] | select(.body | startswith("## Blueprint Drift Detected")) | .id' 2>/dev/null | head -1)
+          if [ -n "$COMMENT_ID" ]; then
+            gh api repos/${{ "{{" }} github.repository {{ "}}" }}/issues/comments/${COMMENT_ID} \
+              --method DELETE
+          fi
+
+      - name: Fail if drift detected
+        if: steps.check.outcome == 'failure'
+        run: exit 1

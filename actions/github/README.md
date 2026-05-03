@@ -4,10 +4,11 @@ Composable GitHub Actions workflow templates.
 
 ## Available
 
-| Folder | Language | Description |
-|--------|----------|-------------|
-| [`integration/go/`](integration/go/) | Go | Tests with `go tool cover`, lint, build + artifact upload, integration tests, security |
-| [`integration/python/`](integration/python/) | Python | Tests with `pytest` + `coverage.xml`, lint, integration tests, security |
+| Folder | Description |
+|--------|-------------|
+| [`integration/go/`](integration/go/) | PR integration — tests with `go tool cover`, lint, build + artifact upload, integration tests, security |
+| [`integration/python/`](integration/python/) | PR integration — tests with `pytest` + `coverage.xml`, lint, integration tests, security |
+| [`blueprint-check/`](blueprint-check/) | PR drift check — fails the PR and posts a comment if rendered files are out of sync with their template |
 
 ## Usage
 

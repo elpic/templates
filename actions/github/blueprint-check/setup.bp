@@ -1,0 +1,29 @@
+# GitHub Actions — blueprint drift-check workflow blueprint
+#
+# Render into your project:
+#   blueprint render setup.bp --template . --output .github/workflows --var BLUEPRINT_FILE=setup.bp --var TEMPLATE=@github:elpic/templates@main:containers/python --var AGAINST=.
+#
+# Check drift:
+#   blueprint check setup.bp --template . --against .github/workflows --var BLUEPRINT_FILE=setup.bp --var TEMPLATE=@github:elpic/templates@main:containers/python --var AGAINST=.
+#
+# Override any default at render time with --var, e.g.:
+#   blueprint render setup.bp --template . --output .github/workflows \
+#     --var BLUEPRINT_FILE=setup.bp \
+#     --var TEMPLATE=@github:elpic/templates@main:containers/python \
+#     --var AGAINST=. \
+#     --var MAIN_BRANCH=master \
+#     --var RUNNER=self-hosted \
+#     --var CHECKOUT_VERSION=v3 \
+#     --var BLUEPRINT_VERSION=latest
+
+# ── Required ──────────────────────────────────────────────────────────────────
+var BLUEPRINT_FILE    # Path to the .bp file inside the repo (e.g. setup.bp)
+var TEMPLATE          # Template path or @github: shorthand (e.g. @github:elpic/templates@main:containers/python)
+var AGAINST           # Directory or file to check against (e.g. . or src/)
+
+# ── Optional overrides ────────────────────────────────────────────────────────
+# var MAIN_BRANCH main            # default: main
+# var RUNNER ubuntu-latest        # default: ubuntu-latest
+# var CHECKOUT_VERSION v4         # default: v4 — version of actions/checkout to use
+# var BLUEPRINT_VERSION latest    # default: latest — blueprint release tag to install (e.g. 1.2.0)
+# var TIMEOUT_MINUTES 5           # default: 5
