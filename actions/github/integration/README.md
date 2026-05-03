@@ -18,6 +18,8 @@ GitHub Actions workflow that runs on every PR against `main`.
 |----------|----------|---------|-------------|
 | `APP_NAME` | yes | — | Application name; used in artifact names |
 | `MAIN_BRANCH` | no | `main` | Branch that PRs target |
+| `RUNNER` | no | `ubuntu-latest` | GitHub Actions runner image (e.g. `self-hosted`, `ubuntu-22.04`) |
+| `CHECKOUT_VERSION` | no | `v4` | Version of `actions/checkout` to pin |
 | `TEST_TASK` | no | `test:coverage` | mise task that runs tests and writes `coverage.out` |
 | `LINT_TASK` | no | `lint` | mise task for the linter |
 | `BUILD_TASK` | no | `build` | mise task that builds the binary |

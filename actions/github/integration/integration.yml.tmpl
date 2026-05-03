@@ -25,12 +25,12 @@ jobs:
 
   test:
     name: Run Tests
-    runs-on: ubuntu-latest
+    runs-on: {{ default "RUNNER" "ubuntu-latest" }}
     timeout-minutes: {{ default "TIMEOUT_MINUTES" "10" }}
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@{{ default "CHECKOUT_VERSION" "v4" }}
         with:
           fetch-depth: 0
 
@@ -177,12 +177,12 @@ jobs:
 
   lint:
     name: Run Linter
-    runs-on: ubuntu-latest
+    runs-on: {{ default "RUNNER" "ubuntu-latest" }}
     timeout-minutes: {{ default "TIMEOUT_MINUTES" "10" }}
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@{{ default "CHECKOUT_VERSION" "v4" }}
 
       - name: Install mise
         uses: jdx/mise-action@v2
@@ -196,12 +196,12 @@ jobs:
 
   build:
     name: Build Binary
-    runs-on: ubuntu-latest
+    runs-on: {{ default "RUNNER" "ubuntu-latest" }}
     timeout-minutes: {{ default "TIMEOUT_MINUTES" "10" }}
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@{{ default "CHECKOUT_VERSION" "v4" }}
 
       - name: Install mise
         uses: jdx/mise-action@v2
@@ -221,13 +221,13 @@ jobs:
 
   integration:
     name: Integration Tests
-    runs-on: ubuntu-latest
+    runs-on: {{ default "RUNNER" "ubuntu-latest" }}
     needs: [test, lint, build]
     timeout-minutes: {{ default "TIMEOUT_MINUTES" "10" }}
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@{{ default "CHECKOUT_VERSION" "v4" }}
 
       - name: Install mise
         uses: jdx/mise-action@v2
@@ -249,12 +249,12 @@ jobs:
 
   security:
     name: Security Checks
-    runs-on: ubuntu-latest
+    runs-on: {{ default "RUNNER" "ubuntu-latest" }}
     timeout-minutes: {{ default "TIMEOUT_MINUTES" "10" }}
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@{{ default "CHECKOUT_VERSION" "v4" }}
 
       - name: Install mise
         uses: jdx/mise-action@v2

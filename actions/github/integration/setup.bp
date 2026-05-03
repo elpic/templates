@@ -10,6 +10,8 @@
 #   blueprint render setup.bp --template . --output .github/workflows \
 #     --var APP_NAME=myapp \
 #     --var MAIN_BRANCH=master \
+#     --var RUNNER=self-hosted \
+#     --var CHECKOUT_VERSION=v3 \
 #     --var TEST_TASK=test:ci \
 #     --var LINT_TASK=lint \
 #     --var BUILD_TASK=build
@@ -19,6 +21,8 @@ var APP_NAME          # Name of the application (used in artifact names)
 
 # ── Optional overrides ────────────────────────────────────────────────────────
 # var MAIN_BRANCH main          # default: main
+# var RUNNER ubuntu-latest      # default: ubuntu-latest — set to self-hosted or a specific image
+# var CHECKOUT_VERSION v4       # default: v4 — version of actions/checkout to use
 # var TEST_TASK test:coverage   # mise task that runs tests and produces coverage.out
 # var LINT_TASK lint            # mise task for the linter
 # var BUILD_TASK build          # mise task that compiles / packages the app
