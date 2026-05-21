@@ -17,21 +17,21 @@ Coverage is read from `coverage.xml` — produce it with `pytest --cov --cov-rep
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `APP_NAME` | yes | — | Application name; used in artifact names |
 | `MAIN_BRANCH` | no | `main` | Branch that PRs target |
-| `RUNNER` | no | `ubuntu-latest` | GitHub Actions runner image (e.g. `self-hosted`, `ubuntu-22.04`) |
-| `CHECKOUT_VERSION` | no | `v4` | Version of `actions/checkout` to pin |
-| `TEST_TASK` | no | `test:coverage` | mise task that runs pytest and writes `coverage.xml` |
+| `RUNNER` | no | `ubuntu-latest` | GitHub Actions runner image |
+| `TEST_TASK` | no | `test` | mise task that runs tests without coverage |
+| `TEST_COVERAGE_TASK` | no | `test:coverage` | mise task that runs pytest and writes `coverage.xml` |
 | `LINT_TASK` | no | `lint` | mise task for the linter |
 | `INTEGRATION_TASK` | no | `test:integration` | mise task for integration tests |
 | `SECURITY_TASK` | no | `security` | mise task for the security scan |
 | `TIMEOUT_MINUTES` | no | `10` | Timeout applied to every job |
+
+Each job delegates to [elpic/actions](https://github.com/elpic/actions) composite actions which handle checkout, tooling, and reporting internally.
 
 ## Quick start
 
 ```bash
 blueprint render setup.bp \
   --template @github:elpic/templates@main:actions/github/integration/python \
-  --output .github/workflows \
-  --var APP_NAME=myapp
+  --output .github/workflows
 ```
