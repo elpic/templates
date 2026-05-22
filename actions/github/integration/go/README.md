@@ -1,4 +1,4 @@
-# integration/go
+# Go Integration Workflow
 
 GitHub Actions workflow for Go projects that runs on every PR against `main`.
 
@@ -26,11 +26,26 @@ GitHub Actions workflow for Go projects that runs on every PR against `main`.
 | `INTEGRATION_TASK` | no | `test:integration` | mise task for integration tests |
 | `TIMEOUT_MINUTES` | no | `10` | Timeout applied to every job |
 
-## Quick start
+## Usage
+
+### CLI — standalone project
 
 ```bash
 blueprint render setup.bp \
   --template @github:elpic/templates@main:actions/github/integration/go \
   --output .github/workflows \
   --var APP_NAME=myapp
+```
+
+### In another `.bp` file
+
+```bp
+template @github:elpic/templates@main:actions/github/integration/go
+var APP_NAME myapp
+```
+
+Then render:
+
+```bash
+blueprint render setup.bp --output .github/workflows
 ```

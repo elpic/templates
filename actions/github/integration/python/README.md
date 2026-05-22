@@ -1,4 +1,4 @@
-# integration/python
+# Python Integration Workflow
 
 GitHub Actions workflow for Python projects that runs on every PR against `main`.
 
@@ -27,11 +27,26 @@ Coverage is read from `coverage.xml` — produce it with `pytest --cov --cov-rep
 | `SECURITY_TASK` | no | `security` | mise task for the security scan |
 | `TIMEOUT_MINUTES` | no | `10` | Timeout applied to every job |
 
-## Quick start
+## Usage
+
+### CLI — standalone project
 
 ```bash
 blueprint render setup.bp \
   --template @github:elpic/templates@main:actions/github/integration/python \
   --output .github/workflows \
   --var APP_NAME=myapp
+```
+
+### In another `.bp` file
+
+```bp
+template @github:elpic/templates@main:actions/github/integration/python
+var APP_NAME myapp
+```
+
+Then render:
+
+```bash
+blueprint render setup.bp --output .github/workflows
 ```

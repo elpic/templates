@@ -1,4 +1,4 @@
-# blueprint-check
+# Blueprint Drift Check
 
 GitHub Actions workflow that runs `blueprint check` on every PR to detect drift between a template and its rendered output files.
 
@@ -17,7 +17,9 @@ Fails the PR if any rendered file is out of sync with its template, and posts (o
 | `BLUEPRINT_VERSION` | no | `latest` | Blueprint release to install (e.g. `1.2.0`) |
 | `TIMEOUT_MINUTES` | no | `5` | Job timeout |
 
-## Quick start
+## Usage
+
+### CLI — standalone project
 
 ```bash
 blueprint render setup.bp \
@@ -26,4 +28,19 @@ blueprint render setup.bp \
   --var BLUEPRINT_FILE=setup.bp \
   --var TEMPLATE=@github:elpic/templates@main:containers/python \
   --var AGAINST=.
+```
+
+### In another `.bp` file
+
+```bp
+template @github:elpic/templates@main:actions/github/blueprint-check
+var BLUEPRINT_FILE setup.bp
+var TEMPLATE @github:elpic/templates@main:containers/python
+var AGAINST .
+```
+
+Then render:
+
+```bash
+blueprint render setup.bp --output .github/workflows
 ```
