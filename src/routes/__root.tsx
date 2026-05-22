@@ -72,19 +72,27 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { name: "author", content: "elpic" },
+      { name: "robots", content: "index, follow" },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
+      { property: "og:site_name", content: "elpic/templates" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [
+    links: [{ rel: "stylesheet", href: appCss }],
+    scripts: [
       {
-        rel: "stylesheet",
-        href: appCss,
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "SoftwareSourceCode",
+          name: "elpic/templates",
+          description:
+            "Reusable blueprint templates for containers and CI/CD workflows.",
+          codeRepository: "https://github.com/elpic/templates",
+          programmingLanguage: ["YAML", "Dockerfile", "Shell"],
+          license: "https://opensource.org/licenses/MIT",
+          author: { "@type": "Organization", name: "elpic" },
+        }),
       },
     ],
   }),
