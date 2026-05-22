@@ -14,255 +14,52 @@ permissions:
   actions: read
   contents: read
 
-env:
-  GH_TOKEN: ${{ "{{" }} secrets.GITHUB_TOKEN {{ "}}" }}
-
 jobs:
-
-  ###########################
-  # Tests + coverage        #
-  ###########################
 
   test:
     name: Run Tests
     runs-on: {{ default "RUNNER" "ubuntu-latest" }}
     timeout-minutes: {{ default "TIMEOUT_MINUTES" "10" }}
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@{{ default "CHECKOUT_VERSION" "v4" }}
+      - uses: elpic/actions/integration/node/test@v1
         with:
-          fetch-depth: 0
-
-      - name: Install mise
-        uses: jdx/mise-action@v2
-
-      - name: Download main branch coverage
-        id: download-main-coverage
-        run: |
-          MAIN_SHA=$(git rev-parse origin/{{ default "MAIN_BRANCH" "main" }})
-          echo "main_sha=$MAIN_SHA" >> $GITHUB_OUTPUT
-          if gh run download -n "coverage-$MAIN_SHA" --repo ${{ "{{" }} github.repository {{ "}}" }} 2>/dev/null; then
-            echo "coverage_available=true" >> $GITHUB_OUTPUT
-          else
-            echo "coverage_available=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Run tests without coverage (cached main coverage available)
-        if: steps.download-main-coverage.outputs.coverage_available == 'true'
-        run: mise run {{ default "TEST_TASK" "test" }}
-
-      - name: Run tests with coverage (no cached main coverage)
-        if: steps.download-main-coverage.outputs.coverage_available != 'true'
-        run: mise run {{ default "TEST_COVERAGE_TASK" "test:coverage" }}
-        timeout-minutes: 8
-
-      - name: Upload coverage artifact
-        if: hashFiles('coverage/coverage-summary.json') != ''
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-${{ "{{" }} github.event.pull_request.head.sha {{ "}}" }}
-          path: coverage/
-
-      - name: Calculate current coverage
-        id: coverage
-        if: hashFiles('coverage/coverage-summary.json') != ''
-        run: |
-          coverage=$(node -e "
-            const fs = require('fs');
-            const report = JSON.parse(fs.readFileSync('coverage/coverage-summary.json', 'utf8'));
-            const total = report.total;
-            const pct = total.lines.pct;
-            console.log(pct);
-          ")
-          echo "current_coverage=$coverage" >> $GITHUB_OUTPUT
-
-      - name: Calculate main branch coverage
-        id: main-coverage
-        if: steps.download-main-coverage.outputs.coverage_available != 'true'
-        run: |
-          git stash
-          git checkout {{ default "MAIN_BRANCH" "main" }}
-          mise run {{ default "TEST_COVERAGE_TASK" "test:coverage" }} || true
-          main_coverage=$(node -e "
-            const fs = require('fs');
-            const report = JSON.parse(fs.readFileSync('coverage/coverage-summary.json', 'utf8'));
-            const total = report.total;
-            console.log(total.lines.pct);
-          " 2>/dev/null || echo "0")
-          echo "main_coverage=$main_coverage" >> $GITHUB_OUTPUT
-          git checkout -
-          git stash pop || true
-
-      - name: Generate coverage report summary
-        id: coverage-report
-        if: hashFiles('coverage/coverage-summary.json') != ''
-        run: |
-          current="${{ "{{" }} steps.coverage.outputs.current_coverage {{ "}}" }}"
-          main="${{ "{{" }} steps.main-coverage.outputs.main_coverage {{ "}}" }}"
-          current=${current:-0}
-          main=${main:-0}
-          diff=$(node -e "console.log(($current - $main).toFixed(2))" 2>/dev/null || echo "0")
-          echo "current=$current" >> $GITHUB_OUTPUT
-          echo "main=$main" >> $GITHUB_OUTPUT
-          echo "diff=$diff" >> $GITHUB_OUTPUT
-
-          echo "## Coverage Report" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
-          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Current Coverage | ${current}% |" >> $GITHUB_STEP_SUMMARY
-          echo "| Main Branch Coverage | ${main}% |" >> $GITHUB_STEP_SUMMARY
-          echo "| Difference | ${diff}% |" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          if node -e "process.exit($diff > 0 ? 0 : 1)" 2>/dev/null; then
-            echo "✅ Coverage increased by ${diff}%" >> $GITHUB_STEP_SUMMARY
-          elif node -e "process.exit($diff < 0 ? 0 : 1)" 2>/dev/null; then
-            echo "⚠️ Coverage decreased by ${diff#-}%" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "➡️ Coverage unchanged" >> $GITHUB_STEP_SUMMARY
-          fi
-
-      - name: Post coverage comment on PR
-        if: hashFiles('coverage/coverage-summary.json') != ''
-        run: |
-          current="${{ "{{" }} steps.coverage-report.outputs.current {{ "}}" }}"
-          main="${{ "{{" }} steps.coverage-report.outputs.main {{ "}}" }}"
-          diff="${{ "{{" }} steps.coverage-report.outputs.diff {{ "}}" }}"
-          current=${current:-0}; main=${main:-0}; diff=${diff:-0}
-
-          if node -e "process.exit($diff > 0 ? 0 : 1)" 2>/dev/null; then
-            diff_fmt="+${diff}%"; emoji="📈"
-          elif node -e "process.exit($diff < 0 ? 0 : 1)" 2>/dev/null; then
-            diff_fmt="${diff}%"; emoji="📉"
-          else
-            diff_fmt="unchanged"; emoji="➡️"
-          fi
-
-          low_coverage=$(node -e "
-            const fs = require('fs');
-            const report = JSON.parse(fs.readFileSync('coverage/coverage-summary.json', 'utf8'));
-            const files = Object.entries(report)
-              .filter(([key]) => key !== 'total')
-              .map(([path, data]) => ({ path, pct: data.lines.pct }))
-              .filter(f => f.pct > 0 && f.pct < 50)
-              .sort((a, b) => a.pct - b.pct)
-              .slice(0, 10);
-            files.forEach(f => console.log('| ' + f.pct.toFixed(0) + '% | ' + f.path + ' |'));
-          " 2>/dev/null || echo "")
-
-          COMMENT="## Coverage Report ${emoji}
-
-          | Metric | Value |
-          |--------|-------|
-          | **This PR** | ${current}% |
-          | **Main Branch** | ${main}% |
-          | **Change** | ${diff_fmt} ${emoji} |"
-
-          if [ -n "$low_coverage" ]; then
-            COMMENT="${COMMENT}
-
-          ### Files Needing Coverage
-
-          | Coverage | File |
-          |----------|------|
-          ${low_coverage}"
-          fi
-
-          PR_NUMBER=${{ "{{" }} github.event.pull_request.number {{ "}}" }}
-          COMMENT_ID=$(gh api repos/${{ "{{" }} github.repository {{ "}}" }}/issues/${PR_NUMBER}/comments \
-            --jq '.[] | select(.body | startswith("## Coverage Report")) | .id' 2>/dev/null | head -1)
-          if [ -n "$COMMENT_ID" ]; then
-            gh api repos/${{ "{{" }} github.repository {{ "}}" }}/issues/comments/${COMMENT_ID} \
-              --method PATCH --field body="${COMMENT}"
-          else
-            gh pr comment ${PR_NUMBER} --body "${COMMENT}"
-          fi
-
-  ###########################
-  # Lint                    #
-  ###########################
+          test-task: {{ default "TEST_TASK" "test" }}
+          test-coverage-task: {{ default "TEST_COVERAGE_TASK" "test:coverage" }}
 
   lint:
     name: Run Linter
     runs-on: {{ default "RUNNER" "ubuntu-latest" }}
     timeout-minutes: {{ default "TIMEOUT_MINUTES" "10" }}
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@{{ default "CHECKOUT_VERSION" "v4" }}
-
-      - name: Install mise
-        uses: jdx/mise-action@v2
-
-      - name: Run linter
-        run: mise run {{ default "LINT_TASK" "lint" }}
-
-  ###########################
-  # Build                   #
-  ###########################
+      - uses: elpic/actions/integration/node/lint@v1
+        with:
+          lint-task: {{ default "LINT_TASK" "lint" }}
 
   build:
     name: Build
     runs-on: {{ default "RUNNER" "ubuntu-latest" }}
     timeout-minutes: {{ default "TIMEOUT_MINUTES" "10" }}
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@{{ default "CHECKOUT_VERSION" "v4" }}
-
-      - name: Install mise
-        uses: jdx/mise-action@v2
-
-      - name: Build
-        run: mise run {{ default "BUILD_TASK" "build" }}
-
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
+      - uses: elpic/actions/integration/node/build@v1
         with:
-          name: {{ var "APP_NAME" }}-build
-          path: dist/
-
-  ###########################
-  # Integration tests       #
-  ###########################
+          app-name: {{ var "APP_NAME" }}
+          build-task: {{ default "BUILD_TASK" "build" }}
 
   integration:
     name: Integration Tests
     runs-on: {{ default "RUNNER" "ubuntu-latest" }}
     needs: [test, lint, build]
     timeout-minutes: {{ default "TIMEOUT_MINUTES" "10" }}
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@{{ default "CHECKOUT_VERSION" "v4" }}
-
-      - name: Install mise
-        uses: jdx/mise-action@v2
-
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
+      - uses: elpic/actions/integration/node/integration-tests@v1
         with:
-          name: {{ var "APP_NAME" }}-build
-
-      - name: Run integration tests
-        run: mise run {{ default "INTEGRATION_TASK" "test:integration" }}
-
-  ###########################
-  # Security                #
-  ###########################
+          integration-task: {{ default "INTEGRATION_TASK" "test:integration" }}
 
   security:
     name: Security Checks
     runs-on: {{ default "RUNNER" "ubuntu-latest" }}
     timeout-minutes: {{ default "TIMEOUT_MINUTES" "10" }}
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@{{ default "CHECKOUT_VERSION" "v4" }}
-
-      - name: Install mise
-        uses: jdx/mise-action@v2
-
-      - name: Run security scan
-        run: mise run {{ default "SECURITY_TASK" "security" }}
+      - uses: elpic/actions/integration/node/security@v1
+        with:
+          security-task: {{ default "SECURITY_TASK" "security" }}
