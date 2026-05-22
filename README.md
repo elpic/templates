@@ -22,10 +22,21 @@ blueprint check setup.bp --template Dockerfile.tmpl --against Dockerfile --var A
 
 ## Index
 
-| Category | Folder | Description |
-|----------|--------|-------------|
-| Containers | [`containers/python/`](containers/python/) | Python multi-stage production + dev Dockerfiles |
-| Actions | [`actions/github/`](actions/github/) | Composable GitHub Actions workflows |
+### Containers
+
+| Template | Description |
+|----------|-------------|
+| [`containers/python/`](containers/python/) | Python multi-stage production + dev Dockerfiles |
+
+### GitHub Actions
+
+| Template | Description |
+|----------|-------------|
+| [`actions/github/integration/go/`](actions/github/integration/go/) | Go PR integration — tests, lint, build, integration tests, security |
+| [`actions/github/integration/node/`](actions/github/integration/node/) | Node.js PR integration — tests, lint, build, integration tests, security |
+| [`actions/github/integration/python/`](actions/github/integration/python/) | Python PR integration — tests, lint, integration tests, security |
+| [`actions/github/delivery/pypi/`](actions/github/delivery/pypi/) | PyPI publish — build and publish Python packages via Trusted Publishing |
+| [`actions/github/blueprint-check/`](actions/github/blueprint-check/) | PR drift check — detects when rendered files are out of sync |
 
 ## Requirements
 
