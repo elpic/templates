@@ -188,6 +188,7 @@ function Landing() {
       {/* Features */}
       <section className="border-t border-border/60">
         <div className="mx-auto max-w-6xl px-6 py-20">
+          <h2 className="sr-only">Key features</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {features.map((f) => (
               <div
