@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://elpic.github.io/templates/sitemap.xml
