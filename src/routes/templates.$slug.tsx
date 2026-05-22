@@ -77,26 +77,39 @@ function TemplatePage() {
   }
   const renderYaml = renderCmd.join("\n");
 
-  const bpVarLines = template.vars.map((v) => {
-    const val =
-      v.required || v.default === null || v.default === undefined
-        ? "<value>"
-        : v.default === ""
-          ? '""'
-          : v.default;
-    const comment = v.required ? "  # required" : "";
-    return `    ${v.name}: ${val}${comment}`;
-  });
-  const bpFile = [
-    "# setup.bp",
-    `template: ${shorthand}`,
-    `output: ${outputDir}`,
-    "vars:",
-    ...(bpVarLines.length > 0 ? bpVarLines : ["    # this template takes no variables"]),
-    "",
-    "# then render with:",
-    "#   blueprint render setup.bp",
-  ].join("\n");
+  const sampleValue = (name: string): string => {
+    if (name === "APP_NAME") return "myapp";
+    if (name === "PYPI_PROJECT_NAME") return "my-package";
+    if (name === "BLUEPRINT_FILE") return "setup.bp";
+    if (name === "TEMPLATE") return shorthand;
+    if (name === "AGAINST") return ".";
+    return "<value>";
+  };
+  const reqLines = template.vars
+    .filter((v) => v.required)
+    .map((v) => `var ${v.name} ${sampleValue(v.name)}  # ${v.description}`);
+  const optLines = template.vars
+    .filter((v) => !v.required)
+    .map((v) => {
+      const def = v.default === "" ? '""' : (v.default ?? "");
+      return `# var ${v.name} ${def}  # default: ${def}`;
+    });
+  const bpSections: string[] = [
+    "# setup.bp — variables for this template live in your own .bp file",
+    "#",
+    "# Then render with:",
+    `#   blueprint render setup.bp --template ${shorthand} --output ${outputDir}`,
+    "#",
+    "# Check for drift in CI:",
+    `#   blueprint check setup.bp --template ${shorthand} --against ${outputDir}`,
+  ];
+  if (reqLines.length > 0) {
+    bpSections.push("", "# ── Required ──────────────────────────────────────────────", ...reqLines);
+  }
+  if (optLines.length > 0) {
+    bpSections.push("", "# ── Optional overrides (uncomment to change) ──────────────", ...optLines);
+  }
+  const bpFile = bpSections.join("\n");
 
   return (
     <div className="min-h-screen bg-background text-foreground">
