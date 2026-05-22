@@ -6,10 +6,9 @@
 
 - [Home](/): Overview of all blueprint templates, categories, and the render command.
 - [Python Container](/templates/containers-python): Multi-stage prod + dev Dockerfiles for Python.
-- [Blueprint Drift Check](/templates/actions-github-blueprint-check): GitHub Actions PR check for blueprint drift.
-- [Docker Delivery](/templates/actions-github-delivery-docker): Build and push Docker images to a registry.
 - [Go Integration](/templates/actions-github-integration-go): PR integration workflow for Go projects.
 - [Node Integration](/templates/actions-github-integration-node): PR integration workflow for Node.js/TypeScript.
 - [Python Integration](/templates/actions-github-integration-python): PR integration workflow for Python.
-- [GitHub Pages Deploy](/templates/actions-github-delivery-pages): Build and deploy a static site to GitHub Pages.
-- [Python Publish (PyPI)](/templates/actions-github-python-publish): Release Python packages to PyPI via Trusted Publishing.
+- [PyPI Publish](/templates/actions-github-delivery-pypi): Build and publish Python packages to PyPI via Trusted Publishing.
+- [GitHub Release Publish](/templates/actions-github-delivery-github-release): Build and create a GitHub Release with artifacts.
+- [Blueprint Drift Check](/templates/actions-github-blueprint-check): GitHub Actions PR check for blueprint drift.
