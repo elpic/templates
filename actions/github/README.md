@@ -9,6 +9,7 @@ Composable GitHub Actions workflow templates.
 | [`integration/go/`](integration/go/) | PR integration — tests with `go tool cover`, lint, build + artifact upload, integration tests, security |
 | [`integration/node/`](integration/node/) | PR integration — tests with coverage, lint, build + artifact upload, integration tests, security |
 | [`integration/python/`](integration/python/) | PR integration — tests with `pytest` + `coverage.xml`, lint, integration tests, security |
+| [`delivery/pypi/`](delivery/pypi/) | PyPI publish — builds and publishes Python packages via Trusted Publishing |
 | [`blueprint-check/`](blueprint-check/) | PR drift check — fails the PR and posts a comment if rendered files are out of sync with their template |
 
 ## Usage

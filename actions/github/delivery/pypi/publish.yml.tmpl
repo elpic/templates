@@ -1,0 +1,71 @@
+# Generated from setup.bp — do not edit directly.
+# Regenerate: blueprint render setup.bp --template . --output .github/workflows \
+#   --var APP_NAME={{ var "APP_NAME" }} --var PYPI_PROJECT_NAME={{ var "PYPI_PROJECT_NAME" }}
+# Check drift:  blueprint check setup.bp --template . --against .github/workflows \
+#   --var APP_NAME={{ var "APP_NAME" }} --var PYPI_PROJECT_NAME={{ var "PYPI_PROJECT_NAME" }}
+
+# Publish — build, version, and publish {{ var "APP_NAME" }} to PyPI.
+#
+# Triggers:
+#   push to {{ default "MAIN_BRANCH" "main" }} — Release Please auto-versions, builds dev or stable
+#   workflow_dispatch                    — manually publish a specific version
+#
+# Uses Trusted Publishing (OIDC) — no tokens needed.
+
+name: Publish
+
+on:
+  push:
+    branches:
+      - {{ default "MAIN_BRANCH" "main" }}
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to publish (e.g. 0.1.0). Leave empty for normal dev/stable flow."
+        required: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+jobs:
+
+  release-please:
+    if: github.event_name != 'workflow_dispatch'
+    runs-on: {{ default "RUNNER" "ubuntu-latest" }}
+    outputs:
+      release_created: ${{ "{{" }} steps.release.outputs.release_created {{ "}}" }}
+      tag_name:       ${{ "{{" }} steps.release.outputs.tag_name {{ "}}" }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          token: ${{ "{{" }} secrets.GITHUB_TOKEN {{ "}}" }}
+          config-file: {{ default "RELEASE_PLEASE_CONFIG" "release-please-config.json" }}
+
+  build:
+    if: always()
+    needs: [release-please]
+    runs-on: {{ default "RUNNER" "ubuntu-latest" }}
+    timeout-minutes: {{ default "TIMEOUT_MINUTES" "10" }}
+    steps:
+      - uses: elpic/actions/delivery/pypi/build@v1
+        with:
+          app-name: {{ var "APP_NAME" }}
+          build-task: {{ default "BUILD_TASK" "build" }}
+          pypi-package-dir: {{ default "PYPI_PACKAGE_DIR" "dist" }}
+
+  publish:
+    if: always()
+    needs: [release-please, build]
+    runs-on: {{ default "RUNNER" "ubuntu-latest" }}
+    timeout-minutes: {{ default "TIMEOUT_MINUTES" "10" }}
+    environment:
+      name: {{ default "PYPI_ENVIRONMENT" "pypi" }}
+      url: https://pypi.org/project/{{ var "PYPI_PROJECT_NAME" }}/
+    steps:
+      - uses: elpic/actions/delivery/pypi/publish@v1
+        with:
+          app-name: {{ var "APP_NAME" }}
+          pypi-package-dir: {{ default "PYPI_PACKAGE_DIR" "dist" }}
