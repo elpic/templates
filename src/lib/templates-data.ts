@@ -30,7 +30,7 @@ export const TEMPLATES: TemplateDef[] = [
     name: "Python Container",
     tagline: "Multi-stage production + dev Dockerfiles for Python",
     description:
-      "Production-grade two-stage Dockerfile and a dev variant for Python projects. Rendered from a single blueprint — Python version and runtime packages flow into every generated file.",
+      "Production-grade two-stage Dockerfile and a dev variant for Python projects, rendered from a single blueprint that drives Python version and packages.",
     blurb:
       "Two-stage prod image with non-root user, BuildKit cache mounts, uv-based deps, and a wrapper entrypoint that handles pre-start tasks.",
     files: [
@@ -57,7 +57,7 @@ export const TEMPLATES: TemplateDef[] = [
     name: "Blueprint Drift Check",
     tagline: "Detect drift between a template and its rendered files on every PR",
     description:
-      "GitHub Actions workflow that runs `blueprint check` on every PR. Fails the PR if any rendered file is out of sync and posts a comment explaining the drift. Comment auto-removes when resolved.",
+      "GitHub Actions workflow that runs `blueprint check` on every PR, failing the PR on drift and posting a comment that auto-removes when resolved.",
     blurb:
       "Delegates to elpic/actions/github/blueprint-check which handles checkout, blueprint install, check, and comment management.",
     files: [
@@ -137,7 +137,7 @@ export const TEMPLATES: TemplateDef[] = [
     name: "Node Integration",
     tagline: "PR integration workflow for Node.js / TypeScript",
     description:
-      "GitHub Actions workflow for Node.js/TypeScript projects that runs on every PR. Test with coverage, ESLint/Prettier, build artifact, integration tests, and npm audit + security scan.",
+      "GitHub Actions PR workflow for Node.js/TypeScript: test with coverage, ESLint/Prettier, build artifact, integration tests, and npm audit security scan.",
     blurb:
       "Five jobs: test, lint, build, integration, security. Each delegates to elpic/actions composite steps.",
     files: [
@@ -166,7 +166,7 @@ export const TEMPLATES: TemplateDef[] = [
     name: "Python Integration",
     tagline: "PR integration workflow for Python projects",
     description:
-      "GitHub Actions workflow for Python projects that runs on every PR. pytest with coverage diff comment, ruff + mypy lint, integration tests, and bandit + safety security scan.",
+      "GitHub Actions PR workflow for Python: pytest with coverage diff comment, ruff + mypy lint, integration tests, and bandit + safety security scan.",
     blurb:
       "Coverage read from coverage.xml — produce it with pytest --cov --cov-report=xml.",
     files: [
@@ -219,7 +219,7 @@ export const TEMPLATES: TemplateDef[] = [
     name: "Python Publish (PyPI)",
     tagline: "Release Python packages to PyPI with Trusted Publishing",
     description:
-      "GitHub Actions workflow that releases Python packages to PyPI using Trusted Publishing (OIDC). Runs on every push to main (auto-versioned via Release Please) and on workflow_dispatch.",
+      "GitHub Actions workflow that releases Python packages to PyPI via Trusted Publishing (OIDC), auto-versioned by Release Please on every push to main.",
     blurb:
       "No API tokens needed — configure Trusted Publishing in PyPI by adding this repo with workflow name 'Publish'.",
     files: [
