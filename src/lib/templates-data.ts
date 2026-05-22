@@ -186,6 +186,32 @@ export const TEMPLATES: TemplateDef[] = [
     ],
   },
   {
+    slug: "actions-github-delivery-pages",
+    path: "actions/github/delivery/pages",
+    category: "actions",
+    subcategory: "github",
+    name: "GitHub Pages Deploy",
+    tagline: "Build a static site and deploy to GitHub Pages",
+    description:
+      "GitHub Actions workflow that builds a static site (Vite, Astro, Hugo, Jekyll, TanStack Start, etc.) and deploys it to GitHub Pages.",
+    blurb:
+      "Delegates to elpic/actions/delivery/pages/publish which handles configure-pages, build, upload-artifact, and deploy-pages internally.",
+    files: [
+      { name: "delivery.yml.tmpl", purpose: "Workflow template" },
+      { name: "setup.bp", purpose: "Blueprint declaring variables" },
+    ],
+    vars: [
+      { name: "BUILD_COMMAND", required: true, default: null, description: "Command to build the site (e.g. npm run build, bun run build)" },
+      { name: "MAIN_BRANCH", required: false, default: "main", description: "Branch that triggers deployment" },
+      { name: "RUNNER", required: false, default: "ubuntu-latest", description: "GitHub Actions runner image" },
+      { name: "SETUP_COMMAND", required: false, default: "npm ci", description: "Command to run before build" },
+      { name: "OUTPUT_DIRECTORY", required: false, default: "dist", description: "Directory with built static files" },
+      { name: "BASE_PATH", required: false, default: "", description: "Base path override (inferred from repo name)" },
+      { name: "TIMEOUT_MINUTES", required: false, default: "15", description: "Timeout applied to every job" },
+      { name: "ACTIONS_VERSION", required: false, default: "v1", description: "Version of elpic/actions composite actions" },
+    ],
+  },
+  {
     slug: "actions-github-python-publish",
     path: "actions/github/python/publish",
     category: "actions",
