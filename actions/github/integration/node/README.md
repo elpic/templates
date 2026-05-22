@@ -1,4 +1,4 @@
-# integration/node
+# Node.js Integration Workflow
 
 GitHub Actions workflow for Node.js / TypeScript projects that runs on every PR against `main`.
 
