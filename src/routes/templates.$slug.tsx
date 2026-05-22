@@ -95,13 +95,16 @@ function TemplatePage() {
       return `# var ${v.name} ${def}  # default: ${def}`;
     });
   const bpSections: string[] = [
-    "# setup.bp — variables for this template live in your own .bp file",
+    "# setup.bp",
     "#",
     "# Then render with:",
-    `#   blueprint render setup.bp --template ${shorthand} --output ${outputDir}`,
+    "#   blueprint render setup.bp",
     "#",
     "# Check for drift in CI:",
-    `#   blueprint check setup.bp --template ${shorthand} --against ${outputDir}`,
+    `#   blueprint check setup.bp --against ${outputDir}`,
+    "",
+    "# ── Template ──────────────────────────────────────────────",
+    `template ${shorthand}`,
   ];
   if (reqLines.length > 0) {
     bpSections.push("", "# ── Required ──────────────────────────────────────────────", ...reqLines);
