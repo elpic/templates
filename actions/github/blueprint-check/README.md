@@ -16,6 +16,7 @@ Delegates to [elpic/actions/github/blueprint-check](https://github.com/elpic/act
 | `MAIN_BRANCH` | no | `main` | Branch that PRs target |
 | `RUNNER` | no | `ubuntu-latest` | GitHub Actions runner image |
 | `TIMEOUT_MINUTES` | no | `5` | Job timeout |
+| `ACTIONS_VERSION` | no | `v1` | Version of elpic/actions composite actions to use |
 
 ## Quick start
 

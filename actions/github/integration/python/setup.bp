@@ -25,3 +25,5 @@
 # var INTEGRATION_TASK test:integration  # mise task for integration tests
 # var SECURITY_TASK security    # mise task for bandit + safety
 # var TIMEOUT_MINUTES 10        # per-job timeout (minutes)
+
+# var ACTIONS_VERSION v1           # default: v1 — version of elpic/actions composite actions to use

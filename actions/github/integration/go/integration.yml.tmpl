@@ -21,7 +21,7 @@ jobs:
     runs-on: {{ default "RUNNER" "ubuntu-latest" }}
     timeout-minutes: {{ default "TIMEOUT_MINUTES" "10" }}
     steps:
-      - uses: elpic/actions/integration/go/test@v1
+      - uses: elpic/actions/integration/go/test@{{ default "ACTIONS_VERSION" "v1" }}
         with:
           test-coverage-task: {{ default "TEST_TASK" "test:coverage" }}
 
@@ -30,7 +30,7 @@ jobs:
     runs-on: {{ default "RUNNER" "ubuntu-latest" }}
     timeout-minutes: {{ default "TIMEOUT_MINUTES" "10" }}
     steps:
-      - uses: elpic/actions/integration/go/lint@v1
+      - uses: elpic/actions/integration/go/lint@{{ default "ACTIONS_VERSION" "v1" }}
         with:
           lint-task: {{ default "LINT_TASK" "lint" }}
 
@@ -39,7 +39,7 @@ jobs:
     runs-on: {{ default "RUNNER" "ubuntu-latest" }}
     timeout-minutes: {{ default "TIMEOUT_MINUTES" "10" }}
     steps:
-      - uses: elpic/actions/integration/go/build@v1
+      - uses: elpic/actions/integration/go/build@{{ default "ACTIONS_VERSION" "v1" }}
         with:
           app-name: {{ var "APP_NAME" }}
           build-task: {{ default "BUILD_TASK" "build" }}
@@ -50,7 +50,7 @@ jobs:
     needs: [test, lint, build]
     timeout-minutes: {{ default "TIMEOUT_MINUTES" "10" }}
     steps:
-      - uses: elpic/actions/integration/go/integration-tests@v1
+      - uses: elpic/actions/integration/go/integration-tests@{{ default "ACTIONS_VERSION" "v1" }}
         with:
           app-name: {{ var "APP_NAME" }}
           integration-task: {{ default "INTEGRATION_TASK" "test:integration" }}
@@ -60,6 +60,6 @@ jobs:
     runs-on: {{ default "RUNNER" "ubuntu-latest" }}
     timeout-minutes: {{ default "TIMEOUT_MINUTES" "10" }}
     steps:
-      - uses: elpic/actions/integration/go/security@v1
+      - uses: elpic/actions/integration/go/security@{{ default "ACTIONS_VERSION" "v1" }}
         with:
           security-task: {{ default "SECURITY_TASK" "security" }}

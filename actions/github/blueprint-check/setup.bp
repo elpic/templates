@@ -23,3 +23,5 @@ var AGAINST           # Directory or file to check against (e.g. . or src/)
 # var MAIN_BRANCH main            # default: main
 # var RUNNER ubuntu-latest        # default: ubuntu-latest
 # var TIMEOUT_MINUTES 5           # default: 5
+
+# var ACTIONS_VERSION v1           # default: v1 — version of elpic/actions composite actions to use

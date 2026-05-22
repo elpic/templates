@@ -25,6 +25,7 @@ Coverage is read from `coverage.xml` — produce it with `pytest --cov --cov-rep
 | `INTEGRATION_TASK` | no | `test:integration` | mise task for integration tests |
 | `SECURITY_TASK` | no | `security` | mise task for the security scan |
 | `TIMEOUT_MINUTES` | no | `10` | Timeout applied to every job |
+| `ACTIONS_VERSION` | no | `v1` | Version of elpic/actions composite actions to use |
 
 Each job delegates to [elpic/actions](https://github.com/elpic/actions) composite actions which handle checkout, tooling, and reporting internally.
 

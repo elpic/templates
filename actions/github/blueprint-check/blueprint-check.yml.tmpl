@@ -19,7 +19,7 @@ jobs:
     runs-on: {{ default "RUNNER" "ubuntu-latest" }}
     timeout-minutes: {{ default "TIMEOUT_MINUTES" "5" }}
     steps:
-      - uses: elpic/actions/github/blueprint-check@v1
+      - uses: elpic/actions/github/blueprint-check@{{ default "ACTIONS_VERSION" "v1" }}
         with:
           blueprint-file: {{ var "BLUEPRINT_FILE" }}
           template: {{ var "TEMPLATE" }}

@@ -1,0 +1,40 @@
+# Generated from setup.bp — do not edit directly.
+# Regenerate: blueprint render setup.bp --template . --output .github/workflows --var APP_NAME={{ var "APP_NAME" }} --var REGISTRY={{ var "REGISTRY" }}
+# Check drift:  blueprint check setup.bp --template . --against .github/workflows --var APP_NAME={{ var "APP_NAME" }} --var REGISTRY={{ var "REGISTRY" }}
+
+# Delivery — build and push Docker image to {{ var "REGISTRY" }}
+#
+# Auth must be configured before calling this workflow. See README for registry-specific setup.
+
+name: Delivery
+
+on:
+  push:
+    branches:
+      - {{ default "MAIN_BRANCH" "main" }}
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+
+  publish:
+    name: Build and Push Docker Image
+    runs-on: {{ default "RUNNER" "ubuntu-latest" }}
+    timeout-minutes: {{ default "TIMEOUT_MINUTES" "15" }}
+    steps:
+      - name: Login to container registry
+        uses: docker/login-action@v3
+        with:
+          registry: {{ var "REGISTRY" }}
+          username: ${{ "{{" }} github.actor {{ "}}" }}
+          password: ${{ "{{" }} secrets.GITHUB_TOKEN {{ "}}" }}
+
+      - uses: elpic/actions/delivery/docker/publish@{{ default "ACTIONS_VERSION" "v1" }}
+        with:
+          app-name: {{ var "APP_NAME" }}
+          registry: {{ var "REGISTRY" }}
+          dockerfile: {{ default "DOCKERFILE" "Dockerfile" }}
+          build-context: {{ default "BUILD_CONTEXT" "." }}
+          build-task: {{ default "BUILD_TASK" "" }}

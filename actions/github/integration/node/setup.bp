@@ -1,4 +1,4 @@
-# GitHub Actions — Go integration workflow blueprint
+# GitHub Actions — Node.js integration workflow blueprint
 #
 # Render into your project:
 #   blueprint render setup.bp --template . --output .github/workflows --var APP_NAME=myapp
@@ -11,21 +11,20 @@
 #     --var APP_NAME=myapp \
 #     --var MAIN_BRANCH=master \
 #     --var RUNNER=self-hosted \
-#     --var TEST_TASK=test:ci \
-#     --var LINT_TASK=lint \
-#     --var BUILD_TASK=build
+#     --var TEST_COVERAGE_TASK=test:coverage
 
 # ── Required ──────────────────────────────────────────────────────────────────
 var APP_NAME          # Name of the application (used in artifact names)
 
 # ── Optional overrides ────────────────────────────────────────────────────────
-# var MAIN_BRANCH main          # default: main
-# var RUNNER ubuntu-latest      # default: ubuntu-latest — set to self-hosted or a specific image
-# var TEST_TASK test:coverage   # mise task that runs tests and produces coverage.out
-# var LINT_TASK lint            # mise task for the linter
-# var BUILD_TASK build          # mise task that compiles / packages the app
+# var MAIN_BRANCH main             # default: main
+# var RUNNER ubuntu-latest         # default: ubuntu-latest
+# var TEST_TASK test               # mise task that runs tests without coverage
+# var TEST_COVERAGE_TASK test:coverage  # mise task that runs tests with coverage
+# var LINT_TASK lint               # mise task for ESLint / Prettier
+# var BUILD_TASK build             # mise task that builds the app
 # var INTEGRATION_TASK test:integration  # mise task for integration tests
-# var SECURITY_TASK security    # mise task for security scans
-# var TIMEOUT_MINUTES 10        # per-job timeout (minutes)
+# var SECURITY_TASK security       # mise task for npm audit / trivy
+# var TIMEOUT_MINUTES 10           # per-job timeout (minutes)
 
 # var ACTIONS_VERSION v1           # default: v1 — version of elpic/actions composite actions to use

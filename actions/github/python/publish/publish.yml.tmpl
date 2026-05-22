@@ -49,7 +49,7 @@ jobs:
     runs-on: {{ default "RUNNER" "ubuntu-latest" }}
     timeout-minutes: {{ default "TIMEOUT_MINUTES" "10" }}
     steps:
-      - uses: elpic/actions/delivery/pypi/build@v1
+      - uses: elpic/actions/delivery/pypi/build@{{ default "ACTIONS_VERSION" "v1" }}
         with:
           app-name: {{ var "APP_NAME" }}
           build-task: {{ default "BUILD_TASK" "build" }}
@@ -64,7 +64,7 @@ jobs:
       name: {{ default "PYPI_ENVIRONMENT" "pypi" }}
       url: https://pypi.org/project/{{ var "PYPI_PROJECT_NAME" }}/
     steps:
-      - uses: elpic/actions/delivery/pypi/publish@v1
+      - uses: elpic/actions/delivery/pypi/publish@{{ default "ACTIONS_VERSION" "v1" }}
         with:
           app-name: {{ var "APP_NAME" }}
           pypi-package-dir: {{ default "PYPI_PACKAGE_DIR" "dist" }}

@@ -28,3 +28,5 @@ var PYPI_PROJECT_NAME   # PyPI project name (used in the publish URL)
 # var PYPI_ENVIRONMENT pypi           # GitHub deployment environment name
 # var RELEASE_PLEASE_CONFIG release-please-config.json  # path to Release Please config
 # var TIMEOUT_MINUTES 10              # per-job timeout (minutes)
+
+# var ACTIONS_VERSION v1           # default: v1 — version of elpic/actions composite actions to use

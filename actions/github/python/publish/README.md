@@ -27,6 +27,7 @@ Uses [Trusted Publishing (OIDC)](https://docs.pypi.org/trusted-publishers/) — 
 | `PYPI_ENVIRONMENT` | no | `pypi` | GitHub deployment environment name |
 | `RELEASE_PLEASE_CONFIG` | no | `release-please-config.json` | Path to Release Please config file |
 | `TIMEOUT_MINUTES` | no | `10` | Timeout applied to every job |
+| `ACTIONS_VERSION` | no | `v1` | Version of elpic/actions composite actions to use |
 
 Your `mise run build` script receives `DEV_BUILD` and `RELEASE_VERSION` env vars from the composite action. See [elpic/actions/delivery/pypi/build](https://github.com/elpic/actions/tree/main/delivery/pypi/build) for details.
 

@@ -1,6 +1,6 @@
 # Generated from setup.bp — do not edit directly.
-# Regenerate: blueprint render setup.bp --template . --output .github/workflows
-# Check drift:  blueprint check setup.bp --template . --against .github/workflows
+# Regenerate: blueprint render setup.bp --template . --output .github/workflows --var APP_NAME={{ var "APP_NAME" }}
+# Check drift:  blueprint check setup.bp --template . --against .github/workflows --var APP_NAME={{ var "APP_NAME" }}
 
 name: Integration
 
@@ -21,7 +21,7 @@ jobs:
     runs-on: {{ default "RUNNER" "ubuntu-latest" }}
     timeout-minutes: {{ default "TIMEOUT_MINUTES" "10" }}
     steps:
-      - uses: elpic/actions/integration/python/test@{{ default "ACTIONS_VERSION" "v1" }}
+      - uses: elpic/actions/integration/node/test@{{ default "ACTIONS_VERSION" "v1" }}
         with:
           test-task: {{ default "TEST_TASK" "test" }}
           test-coverage-task: {{ default "TEST_COVERAGE_TASK" "test:coverage" }}
@@ -31,17 +31,27 @@ jobs:
     runs-on: {{ default "RUNNER" "ubuntu-latest" }}
     timeout-minutes: {{ default "TIMEOUT_MINUTES" "10" }}
     steps:
-      - uses: elpic/actions/integration/python/lint@{{ default "ACTIONS_VERSION" "v1" }}
+      - uses: elpic/actions/integration/node/lint@{{ default "ACTIONS_VERSION" "v1" }}
         with:
           lint-task: {{ default "LINT_TASK" "lint" }}
+
+  build:
+    name: Build
+    runs-on: {{ default "RUNNER" "ubuntu-latest" }}
+    timeout-minutes: {{ default "TIMEOUT_MINUTES" "10" }}
+    steps:
+      - uses: elpic/actions/integration/node/build@{{ default "ACTIONS_VERSION" "v1" }}
+        with:
+          app-name: {{ var "APP_NAME" }}
+          build-task: {{ default "BUILD_TASK" "build" }}
 
   integration:
     name: Integration Tests
     runs-on: {{ default "RUNNER" "ubuntu-latest" }}
-    needs: [test, lint]
+    needs: [test, lint, build]
     timeout-minutes: {{ default "TIMEOUT_MINUTES" "10" }}
     steps:
-      - uses: elpic/actions/integration/python/integration-tests@{{ default "ACTIONS_VERSION" "v1" }}
+      - uses: elpic/actions/integration/node/integration-tests@{{ default "ACTIONS_VERSION" "v1" }}
         with:
           integration-task: {{ default "INTEGRATION_TASK" "test:integration" }}
 
@@ -50,6 +60,6 @@ jobs:
     runs-on: {{ default "RUNNER" "ubuntu-latest" }}
     timeout-minutes: {{ default "TIMEOUT_MINUTES" "10" }}
     steps:
-      - uses: elpic/actions/integration/python/security@{{ default "ACTIONS_VERSION" "v1" }}
+      - uses: elpic/actions/integration/node/security@{{ default "ACTIONS_VERSION" "v1" }}
         with:
           security-task: {{ default "SECURITY_TASK" "security" }}

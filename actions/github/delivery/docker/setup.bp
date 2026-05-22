@@ -1,0 +1,29 @@
+# GitHub Actions — Docker delivery workflow blueprint
+#
+# Render into your project:
+#   blueprint render setup.bp --template . --output .github/workflows --var APP_NAME=myapp --var REGISTRY=ghcr.io/myorg
+#
+# Check drift:
+#   blueprint check setup.bp --template . --against .github/workflows --var APP_NAME=myapp --var REGISTRY=ghcr.io/myorg
+#
+# Override any default at render time with --var, e.g.:
+#   blueprint render setup.bp --template . --output .github/workflows \
+#     --var APP_NAME=myapp \
+#     --var REGISTRY=ghcr.io/myorg \
+#     --var MAIN_BRANCH=master \
+#     --var RUNNER=self-hosted \
+#     --var DOCKERFILE=Dockerfile.release
+
+# ── Required ──────────────────────────────────────────────────────────────────
+var APP_NAME          # Application name; used in image name
+var REGISTRY          # Container registry URL (e.g. ghcr.io/myorg, docker.io/myuser)
+
+# ── Optional overrides ────────────────────────────────────────────────────────
+# var MAIN_BRANCH main             # default: main
+# var RUNNER ubuntu-latest         # default: ubuntu-latest
+# var DOCKERFILE Dockerfile        # path to Dockerfile
+# var BUILD_CONTEXT .              # Docker build context directory
+# var BUILD_TASK ""                # mise task for pre-build steps (e.g. compile assets)
+# var TIMEOUT_MINUTES 15           # per-job timeout (minutes)
+
+# var ACTIONS_VERSION v1           # default: v1 — version of elpic/actions composite actions to use
