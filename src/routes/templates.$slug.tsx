@@ -77,26 +77,39 @@ function TemplatePage() {
   }
   const renderYaml = renderCmd.join("\n");
 
-  const bpVarLines = template.vars.map((v) => {
-    const val =
-      v.required || v.default === null || v.default === undefined
-        ? "<value>"
-        : v.default === ""
-          ? '""'
-          : v.default;
-    const comment = v.required ? "  # required" : "";
-    return `    ${v.name}: ${val}${comment}`;
-  });
-  const bpFile = [
-    "# setup.bp",
-    `template: ${shorthand}`,
-    `output: ${outputDir}`,
-    "vars:",
-    ...(bpVarLines.length > 0 ? bpVarLines : ["    # this template takes no variables"]),
-    "",
-    "# then render with:",
-    "#   blueprint render setup.bp",
-  ].join("\n");
+  const reqLines = template.vars
+    .filter((v) => v.required)
+    .map((v) => `var ${v.name}  # ${v.description}`);
+  const optLines = template.vars
+    .filter((v) => !v.required)
+    .map((v) => {
+      const def = v.default === "" ? '""' : (v.default ?? "");
+      return `# var ${v.name} ${def}  # default: ${def}`;
+    });
+  const bpSections: string[] = [
+    `# ${template.name} blueprint`,
+    "#",
+    "# Render into your project:",
+    `# blueprint render setup.bp --template . --output ${outputDir}${
+      requiredVars.length > 0
+        ? " " + requiredVars.map((v) => `--var ${v.name}=<value>`).join(" ")
+        : ""
+    }`,
+    "#",
+    "# Check drift:",
+    `# blueprint check setup.bp --template . --against ${outputDir}${
+      requiredVars.length > 0
+        ? " " + requiredVars.map((v) => `--var ${v.name}=<value>`).join(" ")
+        : ""
+    }`,
+  ];
+  if (reqLines.length > 0) {
+    bpSections.push("", "# ── Required ──────────────────────────────────────────────", ...reqLines);
+  }
+  if (optLines.length > 0) {
+    bpSections.push("", "# ── Optional overrides ────────────────────────────────────", ...optLines);
+  }
+  const bpFile = bpSections.join("\n");
 
   return (
     <div className="min-h-screen bg-background text-foreground">
