@@ -1,0 +1,30 @@
+# GitHub Actions — Node.js integration workflow blueprint
+#
+# Render into your project:
+#   blueprint render setup.bp --template . --output .github/workflows --var APP_NAME=myapp
+#
+# Check drift:
+#   blueprint check setup.bp --template . --against .github/workflows --var APP_NAME=myapp
+#
+# Override any default at render time with --var, e.g.:
+#   blueprint render setup.bp --template . --output .github/workflows \
+#     --var APP_NAME=myapp \
+#     --var MAIN_BRANCH=master \
+#     --var RUNNER=self-hosted \
+#     --var TEST_TASK=test \
+#     --var LINT_TASK=lint \
+#     --var BUILD_TASK=build
+
+# ── Required ──────────────────────────────────────────────────────────────────
+var APP_NAME          # Name of the application (used in artifact names)
+
+# ── Optional overrides ────────────────────────────────────────────────────────
+# var MAIN_BRANCH main              # default: main
+# var RUNNER ubuntu-latest          # default: ubuntu-latest
+# var TEST_TASK test                # mise task for tests without coverage
+# var TEST_COVERAGE_TASK test:coverage  # mise task for tests with coverage
+# var LINT_TASK lint                # mise task for ESLint / Prettier
+# var BUILD_TASK build              # mise task that builds the app
+# var INTEGRATION_TASK test:integration  # mise task for integration tests
+# var SECURITY_TASK security        # mise task for npm audit / trivy
+# var TIMEOUT_MINUTES 10            # per-job timeout (minutes)

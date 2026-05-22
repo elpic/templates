@@ -1,0 +1,65 @@
+# Generated from setup.bp — do not edit directly.
+# Regenerate: blueprint render setup.bp --template . --output .github/workflows --var APP_NAME={{ var "APP_NAME" }}
+# Check drift:  blueprint check setup.bp --template . --against .github/workflows --var APP_NAME={{ var "APP_NAME" }}
+
+name: Integration
+
+on:
+  pull_request:
+    branches:
+      - {{ default "MAIN_BRANCH" "main" }}
+
+permissions:
+  pull-requests: write
+  actions: read
+  contents: read
+
+jobs:
+
+  test:
+    name: Run Tests
+    runs-on: {{ default "RUNNER" "ubuntu-latest" }}
+    timeout-minutes: {{ default "TIMEOUT_MINUTES" "10" }}
+    steps:
+      - uses: elpic/actions/integration/node/test@v1
+        with:
+          test-task: {{ default "TEST_TASK" "test" }}
+          test-coverage-task: {{ default "TEST_COVERAGE_TASK" "test:coverage" }}
+
+  lint:
+    name: Run Linter
+    runs-on: {{ default "RUNNER" "ubuntu-latest" }}
+    timeout-minutes: {{ default "TIMEOUT_MINUTES" "10" }}
+    steps:
+      - uses: elpic/actions/integration/node/lint@v1
+        with:
+          lint-task: {{ default "LINT_TASK" "lint" }}
+
+  build:
+    name: Build
+    runs-on: {{ default "RUNNER" "ubuntu-latest" }}
+    timeout-minutes: {{ default "TIMEOUT_MINUTES" "10" }}
+    steps:
+      - uses: elpic/actions/integration/node/build@v1
+        with:
+          app-name: {{ var "APP_NAME" }}
+          build-task: {{ default "BUILD_TASK" "build" }}
+
+  integration:
+    name: Integration Tests
+    runs-on: {{ default "RUNNER" "ubuntu-latest" }}
+    needs: [test, lint, build]
+    timeout-minutes: {{ default "TIMEOUT_MINUTES" "10" }}
+    steps:
+      - uses: elpic/actions/integration/node/integration-tests@v1
+        with:
+          integration-task: {{ default "INTEGRATION_TASK" "test:integration" }}
+
+  security:
+    name: Security Checks
+    runs-on: {{ default "RUNNER" "ubuntu-latest" }}
+    timeout-minutes: {{ default "TIMEOUT_MINUTES" "10" }}
+    steps:
+      - uses: elpic/actions/integration/node/security@v1
+        with:
+          security-task: {{ default "SECURITY_TASK" "security" }}
