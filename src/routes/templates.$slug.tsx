@@ -62,10 +62,11 @@ function TemplatePage() {
   const shorthand = templateShorthand(template);
 
   const requiredVars = template.vars.filter((v) => v.required);
+  const outputDir = template.category === "actions" ? ".github/workflows" : ".";
   const renderCmd = [
     "blueprint render setup.bp \\",
     `  --template ${shorthand} \\`,
-    `  --output ${template.category === "actions" ? ".github/workflows" : "."} \\`,
+    `  --output ${outputDir} \\`,
     ...requiredVars.map(
       (v, i) =>
         `  --var ${v.name}=<value>${i === requiredVars.length - 1 ? "" : " \\"}`,
@@ -75,6 +76,27 @@ function TemplatePage() {
     renderCmd[renderCmd.length - 1] = renderCmd[renderCmd.length - 1].replace(/ \\$/, "");
   }
   const renderYaml = renderCmd.join("\n");
+
+  const bpVarLines = template.vars.map((v) => {
+    const val =
+      v.required || v.default === null || v.default === undefined
+        ? "<value>"
+        : v.default === ""
+          ? '""'
+          : v.default;
+    const comment = v.required ? "  # required" : "";
+    return `    ${v.name}: ${val}${comment}`;
+  });
+  const bpFile = [
+    "# setup.bp",
+    `template: ${shorthand}`,
+    `output: ${outputDir}`,
+    "vars:",
+    ...(bpVarLines.length > 0 ? bpVarLines : ["    # this template takes no variables"]),
+    "",
+    "# then render with:",
+    "#   blueprint render setup.bp",
+  ].join("\n");
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -133,20 +155,45 @@ function TemplatePage() {
           <span className="rounded bg-secondary px-2 py-1 text-foreground">{shorthand}</span>
         </div>
 
-        {/* Render command */}
+        {/* Usage — two ways */}
         <section className="mt-10">
-          <h2 className="font-mono text-sm uppercase tracking-widest text-primary">/ render</h2>
-          <div className="mt-3 overflow-hidden rounded-xl border border-border bg-card shadow-2xl shadow-black/40">
+          <h2 className="font-mono text-sm uppercase tracking-widest text-primary">/ usage</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Two ways to use this template: render it directly from the CLI, or reference it
+            from a blueprint file in your repo.
+          </p>
+
+          <h3 className="mt-6 font-mono text-xs uppercase tracking-wider text-muted-foreground">
+            1. Render with the CLI
+          </h3>
+          <div className="mt-2 overflow-hidden rounded-xl border border-border bg-card shadow-2xl shadow-black/40">
             <div className="flex items-center gap-2 border-b border-border bg-secondary/60 px-4 py-2.5">
               <span className="h-3 w-3 rounded-full bg-destructive/70" />
               <span className="h-3 w-3 rounded-full bg-chart-3/70" />
               <span className="h-3 w-3 rounded-full bg-primary/70" />
               <span className="ml-3 font-mono text-xs text-muted-foreground">
-                ~/myapp · render template
+                ~/myapp · blueprint render
               </span>
             </div>
             <pre className="overflow-x-auto px-5 py-4 font-mono text-[13px] leading-relaxed">
               <code>{renderYaml}</code>
+            </pre>
+          </div>
+
+          <h3 className="mt-6 font-mono text-xs uppercase tracking-wider text-muted-foreground">
+            2. Use inside a blueprint file
+          </h3>
+          <div className="mt-2 overflow-hidden rounded-xl border border-border bg-card shadow-2xl shadow-black/40">
+            <div className="flex items-center gap-2 border-b border-border bg-secondary/60 px-4 py-2.5">
+              <span className="h-3 w-3 rounded-full bg-destructive/70" />
+              <span className="h-3 w-3 rounded-full bg-chart-3/70" />
+              <span className="h-3 w-3 rounded-full bg-primary/70" />
+              <span className="ml-3 font-mono text-xs text-muted-foreground">
+                ~/myapp · setup.bp
+              </span>
+            </div>
+            <pre className="overflow-x-auto px-5 py-4 font-mono text-[13px] leading-relaxed">
+              <code>{bpFile}</code>
             </pre>
           </div>
         </section>
