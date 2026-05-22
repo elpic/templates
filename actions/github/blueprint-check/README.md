@@ -13,7 +13,7 @@ Fails the PR if any rendered file is out of sync with its template, and posts (o
 | `AGAINST` | yes | — | Directory or file to check against (e.g. `.` or `src/`) |
 | `MAIN_BRANCH` | no | `main` | Branch that PRs target |
 | `RUNNER` | no | `ubuntu-latest` | GitHub Actions runner image |
-| `CHECKOUT_VERSION` | no | `v4` | Version of `actions/checkout` to pin |
+| `CHECKOUT_VERSION` | no | `v6` | Version of `actions/checkout` to pin |
 | `BLUEPRINT_VERSION` | no | `latest` | Blueprint release to install (e.g. `1.2.0`) |
 | `TIMEOUT_MINUTES` | no | `5` | Job timeout |
 

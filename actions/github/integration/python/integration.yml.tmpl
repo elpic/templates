@@ -30,7 +30,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@{{ default "CHECKOUT_VERSION" "v4" }}
+        uses: actions/checkout@{{ default "CHECKOUT_VERSION" "v6" }}
         with:
           fetch-depth: 0
 
@@ -191,7 +191,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@{{ default "CHECKOUT_VERSION" "v4" }}
+        uses: actions/checkout@{{ default "CHECKOUT_VERSION" "v6" }}
 
       - name: Install mise
         uses: jdx/mise-action@v2
@@ -211,7 +211,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@{{ default "CHECKOUT_VERSION" "v4" }}
+        uses: actions/checkout@{{ default "CHECKOUT_VERSION" "v6" }}
 
       - name: Install mise
         uses: jdx/mise-action@v2
@@ -230,7 +230,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@{{ default "CHECKOUT_VERSION" "v4" }}
+        uses: actions/checkout@{{ default "CHECKOUT_VERSION" "v6" }}
 
       - name: Install mise
         uses: jdx/mise-action@v2

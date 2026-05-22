@@ -24,6 +24,6 @@ var AGAINST           # Directory or file to check against (e.g. . or src/)
 # ── Optional overrides ────────────────────────────────────────────────────────
 # var MAIN_BRANCH main            # default: main
 # var RUNNER ubuntu-latest        # default: ubuntu-latest
-# var CHECKOUT_VERSION v4         # default: v4 — version of actions/checkout to use
+# var CHECKOUT_VERSION v6         # default: v6 — version of actions/checkout to use
 # var BLUEPRINT_VERSION latest    # default: latest — blueprint release tag to install (e.g. 1.2.0)
 # var TIMEOUT_MINUTES 5           # default: 5

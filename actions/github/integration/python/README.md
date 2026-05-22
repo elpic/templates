@@ -20,7 +20,7 @@ Coverage is read from `coverage.xml` — produce it with `pytest --cov --cov-rep
 | `APP_NAME` | yes | — | Application name; used in artifact names |
 | `MAIN_BRANCH` | no | `main` | Branch that PRs target |
 | `RUNNER` | no | `ubuntu-latest` | GitHub Actions runner image (e.g. `self-hosted`, `ubuntu-22.04`) |
-| `CHECKOUT_VERSION` | no | `v4` | Version of `actions/checkout` to pin |
+| `CHECKOUT_VERSION` | no | `v6` | Version of `actions/checkout` to pin |
 | `TEST_TASK` | no | `test:coverage` | mise task that runs pytest and writes `coverage.xml` |
 | `LINT_TASK` | no | `lint` | mise task for the linter |
 | `INTEGRATION_TASK` | no | `test:integration` | mise task for integration tests |

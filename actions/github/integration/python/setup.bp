@@ -21,7 +21,7 @@ var APP_NAME          # Name of the application (used in artifact and image name
 # ── Optional overrides ────────────────────────────────────────────────────────
 # var MAIN_BRANCH main          # default: main
 # var RUNNER ubuntu-latest      # default: ubuntu-latest — set to self-hosted or a specific image
-# var CHECKOUT_VERSION v4       # default: v4 — version of actions/checkout to use
+# var CHECKOUT_VERSION v6       # default: v6 — version of actions/checkout to use
 # var TEST_TASK test:coverage   # mise task that runs pytest and produces coverage.xml
 # var LINT_TASK lint            # mise task for ruff + mypy
 # var SECURITY_TASK security    # mise task for bandit + safety
