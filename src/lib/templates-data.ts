@@ -50,58 +50,6 @@ export const TEMPLATES: TemplateDef[] = [
     ],
   },
   {
-    slug: "actions-github-blueprint-check",
-    path: "actions/github/blueprint-check",
-    category: "actions",
-    subcategory: "github",
-    name: "Blueprint Drift Check",
-    tagline: "Detect drift between a template and its rendered files on every PR",
-    description:
-      "GitHub Actions workflow that runs `blueprint check` on every PR, failing the PR on drift and posting a comment that auto-removes when resolved.",
-    blurb:
-      "Delegates to elpic/actions/github/blueprint-check which handles checkout, blueprint install, check, and comment management.",
-    files: [
-      { name: "blueprint-check.yml.tmpl", purpose: "Workflow template" },
-      { name: "setup.bp", purpose: "Blueprint declaring variables" },
-    ],
-    vars: [
-      { name: "BLUEPRINT_FILE", required: true, default: null, description: "Path to the .bp file inside the repo (e.g. setup.bp)" },
-      { name: "TEMPLATE", required: true, default: null, description: "Template path or @github: shorthand" },
-      { name: "AGAINST", required: true, default: null, description: "Directory or file to check against (e.g. . or src/)" },
-      { name: "MAIN_BRANCH", required: false, default: "main", description: "Branch that PRs target" },
-      { name: "RUNNER", required: false, default: "ubuntu-latest", description: "GitHub Actions runner image" },
-      { name: "TIMEOUT_MINUTES", required: false, default: "5", description: "Job timeout" },
-      { name: "ACTIONS_VERSION", required: false, default: "v1", description: "Version of elpic/actions composite actions" },
-    ],
-  },
-  {
-    slug: "actions-github-delivery-docker",
-    path: "actions/github/delivery/docker",
-    category: "actions",
-    subcategory: "github",
-    name: "Docker Delivery",
-    tagline: "Build and push Docker images to a container registry",
-    description:
-      "GitHub Actions workflow that builds, tags, and pushes Docker images to GHCR, Docker Hub, ECR, or any OCI registry on every push to main.",
-    blurb:
-      "Uses docker/login-action@v3 with GITHUB_TOKEN by default. Override the login step for other registries.",
-    files: [
-      { name: "delivery.yml.tmpl", purpose: "Workflow template" },
-      { name: "setup.bp", purpose: "Blueprint declaring variables" },
-    ],
-    vars: [
-      { name: "APP_NAME", required: true, default: null, description: "Application name; used in image name" },
-      { name: "REGISTRY", required: true, default: null, description: "Container registry URL" },
-      { name: "MAIN_BRANCH", required: false, default: "main", description: "Branch that triggers publishing" },
-      { name: "RUNNER", required: false, default: "ubuntu-latest", description: "GitHub Actions runner image" },
-      { name: "DOCKERFILE", required: false, default: "Dockerfile", description: "Path to Dockerfile" },
-      { name: "BUILD_CONTEXT", required: false, default: ".", description: "Docker build context" },
-      { name: "BUILD_TASK", required: false, default: "", description: "mise task for pre-build steps" },
-      { name: "TIMEOUT_MINUTES", required: false, default: "10", description: "Timeout applied to every job" },
-      { name: "ACTIONS_VERSION", required: false, default: "v1", description: "Version of elpic/actions composite actions" },
-    ],
-  },
-  {
     slug: "actions-github-integration-go",
     path: "actions/github/integration/go",
     category: "actions",
@@ -186,42 +134,16 @@ export const TEMPLATES: TemplateDef[] = [
     ],
   },
   {
-    slug: "actions-github-delivery-pages",
-    path: "actions/github/delivery/pages",
+    slug: "actions-github-delivery-pypi",
+    path: "actions/github/delivery/pypi",
     category: "actions",
     subcategory: "github",
-    name: "GitHub Pages Deploy",
-    tagline: "Build a static site and deploy to GitHub Pages",
+    name: "PyPI Publish",
+    tagline: "Build and publish Python packages to PyPI via Trusted Publishing",
     description:
-      "GitHub Actions workflow that builds a static site (Vite, Astro, Hugo, Jekyll, TanStack Start, etc.) and deploys it to GitHub Pages.",
+      "GitHub Actions workflow that builds and publishes Python packages to PyPI using Trusted Publishing (OIDC), auto-versioned by Release Please on every push to main.",
     blurb:
-      "Delegates to elpic/actions/delivery/pages/publish which handles configure-pages, build, upload-artifact, and deploy-pages internally.",
-    files: [
-      { name: "delivery.yml.tmpl", purpose: "Workflow template" },
-      { name: "setup.bp", purpose: "Blueprint declaring variables" },
-    ],
-    vars: [
-      { name: "BUILD_COMMAND", required: true, default: null, description: "Command to build the site (e.g. npm run build, bun run build)" },
-      { name: "MAIN_BRANCH", required: false, default: "main", description: "Branch that triggers deployment" },
-      { name: "RUNNER", required: false, default: "ubuntu-latest", description: "GitHub Actions runner image" },
-      { name: "SETUP_COMMAND", required: false, default: "npm ci", description: "Command to run before build" },
-      { name: "OUTPUT_DIRECTORY", required: false, default: "dist", description: "Directory with built static files" },
-      { name: "BASE_PATH", required: false, default: "", description: "Base path override (inferred from repo name)" },
-      { name: "TIMEOUT_MINUTES", required: false, default: "15", description: "Timeout applied to every job" },
-      { name: "ACTIONS_VERSION", required: false, default: "v1", description: "Version of elpic/actions composite actions" },
-    ],
-  },
-  {
-    slug: "actions-github-python-publish",
-    path: "actions/github/python/publish",
-    category: "actions",
-    subcategory: "github",
-    name: "Python Publish (PyPI)",
-    tagline: "Release Python packages to PyPI with Trusted Publishing",
-    description:
-      "GitHub Actions workflow that releases Python packages to PyPI via Trusted Publishing (OIDC), auto-versioned by Release Please on every push to main.",
-    blurb:
-      "No API tokens needed — configure Trusted Publishing in PyPI by adding this repo with workflow name 'Publish'.",
+      "Delegates build and publish to elpic/actions/delivery/pypi composite actions.",
     files: [
       { name: "publish.yml.tmpl", purpose: "Workflow template" },
       { name: "setup.bp", purpose: "Blueprint declaring variables" },
@@ -236,6 +158,55 @@ export const TEMPLATES: TemplateDef[] = [
       { name: "PYPI_ENVIRONMENT", required: false, default: "pypi", description: "GitHub deployment environment name" },
       { name: "RELEASE_PLEASE_CONFIG", required: false, default: "release-please-config.json", description: "Path to Release Please config file" },
       { name: "TIMEOUT_MINUTES", required: false, default: "10", description: "Timeout applied to every job" },
+    ],
+  },
+  {
+    slug: "actions-github-delivery-github-release",
+    path: "actions/github/delivery/github-release",
+    category: "actions",
+    subcategory: "github",
+    name: "GitHub Release Publish",
+    tagline: "Build and create a GitHub Release with artifacts",
+    description:
+      "GitHub Actions workflow that builds your application and creates a GitHub Release with built artifacts, auto-versioned by Release Please on every push to main.",
+    blurb:
+      "Delegates build and publish to elpic/actions/delivery/github-release composite actions.",
+    files: [
+      { name: "publish.yml.tmpl", purpose: "Workflow template" },
+      { name: "setup.bp", purpose: "Blueprint declaring variables" },
+    ],
+    vars: [
+      { name: "APP_NAME", required: true, default: null, description: "Application name; used in artifact names" },
+      { name: "MAIN_BRANCH", required: false, default: "main", description: "Branch that triggers automated publishing" },
+      { name: "RUNNER", required: false, default: "ubuntu-latest", description: "GitHub Actions runner image" },
+      { name: "BUILD_TASK", required: false, default: "build", description: "mise task that builds the app" },
+      { name: "BUILD_OUTPUT", required: false, default: "dist", description: "Directory containing the built output" },
+      { name: "RELEASE_PLEASE_CONFIG", required: false, default: "release-please-config.json", description: "Path to Release Please config file" },
+      { name: "TIMEOUT_MINUTES", required: false, default: "10", description: "Timeout applied to every job" },
+    ],
+  },
+  {
+    slug: "actions-github-blueprint-check",
+    path: "actions/github/blueprint-check",
+    category: "actions",
+    subcategory: "github",
+    name: "Blueprint Drift Check",
+    tagline: "Detect drift between a template and its rendered files on every PR",
+    description:
+      "GitHub Actions workflow that runs `blueprint check` on every PR, failing the PR on drift and posting a comment that auto-removes when resolved.",
+    blurb:
+      "Delegates to elpic/actions/github/blueprint-check which handles checkout, blueprint install, check, and comment management.",
+    files: [
+      { name: "blueprint-check.yml.tmpl", purpose: "Workflow template" },
+      { name: "setup.bp", purpose: "Blueprint declaring variables" },
+    ],
+    vars: [
+      { name: "BLUEPRINT_FILE", required: true, default: null, description: "Path to the .bp file inside the repo (e.g. setup.bp)" },
+      { name: "TEMPLATE", required: true, default: null, description: "Template path or @github: shorthand" },
+      { name: "AGAINST", required: true, default: null, description: "Directory or file to check against (e.g. . or src/)" },
+      { name: "MAIN_BRANCH", required: false, default: "main", description: "Branch that PRs target" },
+      { name: "RUNNER", required: false, default: "ubuntu-latest", description: "GitHub Actions runner image" },
+      { name: "TIMEOUT_MINUTES", required: false, default: "5", description: "Job timeout" },
       { name: "ACTIONS_VERSION", required: false, default: "v1", description: "Version of elpic/actions composite actions" },
     ],
   },
