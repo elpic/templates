@@ -1,0 +1,26 @@
+# GitHub Actions — GitHub Release publish workflow blueprint
+#
+# Render into your project:
+#   blueprint render setup.bp --template . --output .github/workflows --var APP_NAME=myapp
+#
+# Check drift:
+#   blueprint check setup.bp --template . --against .github/workflows --var APP_NAME=myapp
+#
+# Override any default at render time with --var, e.g.:
+#   blueprint render setup.bp --template . --output .github/workflows \
+#     --var APP_NAME=myapp \
+#     --var MAIN_BRANCH=master \
+#     --var RUNNER=self-hosted \
+#     --var BUILD_TASK=build:all \
+#     --var BUILD_OUTPUT=release
+
+# ── Required ──────────────────────────────────────────────────────────────────
+var APP_NAME          # Application name; used in artifact names
+
+# ── Optional overrides ────────────────────────────────────────────────────────
+# var MAIN_BRANCH main                # default: main
+# var RUNNER ubuntu-latest            # default: ubuntu-latest
+# var BUILD_TASK build                # mise task that builds the app
+# var BUILD_OUTPUT dist               # directory containing the built output
+# var RELEASE_PLEASE_CONFIG release-please-config.json  # path to Release Please config
+# var TIMEOUT_MINUTES 10              # per-job timeout (minutes)
