@@ -36,6 +36,7 @@ blueprint check setup.bp --template Dockerfile.tmpl --against Dockerfile --var A
 | [`actions/github/integration/node/`](actions/github/integration/node/) | Node.js PR integration — tests, lint, build, integration tests, security |
 | [`actions/github/integration/python/`](actions/github/integration/python/) | Python PR integration — tests, lint, integration tests, security |
 | [`actions/github/delivery/pypi/`](actions/github/delivery/pypi/) | PyPI publish — build and publish Python packages via Trusted Publishing |
+| [`actions/github/delivery/github-release/`](actions/github/delivery/github-release/) | GitHub Release — build and create a release with artifacts and release notes |
 | [`actions/github/blueprint-check/`](actions/github/blueprint-check/) | PR drift check — detects when rendered files are out of sync |
 
 ## Requirements
