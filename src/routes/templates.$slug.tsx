@@ -77,9 +77,17 @@ function TemplatePage() {
   }
   const renderYaml = renderCmd.join("\n");
 
+  const sampleValue = (name: string): string => {
+    if (name === "APP_NAME") return "myapp";
+    if (name === "PYPI_PROJECT_NAME") return "my-package";
+    if (name === "BLUEPRINT_FILE") return "setup.bp";
+    if (name === "TEMPLATE") return shorthand;
+    if (name === "AGAINST") return ".";
+    return "<value>";
+  };
   const reqLines = template.vars
     .filter((v) => v.required)
-    .map((v) => `var ${v.name}  # ${v.description}`);
+    .map((v) => `var ${v.name} ${sampleValue(v.name)}  # ${v.description}`);
   const optLines = template.vars
     .filter((v) => !v.required)
     .map((v) => {
@@ -87,27 +95,19 @@ function TemplatePage() {
       return `# var ${v.name} ${def}  # default: ${def}`;
     });
   const bpSections: string[] = [
-    `# ${template.name} blueprint`,
+    "# setup.bp — variables for this template live in your own .bp file",
     "#",
-    "# Render into your project:",
-    `# blueprint render setup.bp --template . --output ${outputDir}${
-      requiredVars.length > 0
-        ? " " + requiredVars.map((v) => `--var ${v.name}=<value>`).join(" ")
-        : ""
-    }`,
+    "# Then render with:",
+    `#   blueprint render setup.bp --template ${shorthand} --output ${outputDir}`,
     "#",
-    "# Check drift:",
-    `# blueprint check setup.bp --template . --against ${outputDir}${
-      requiredVars.length > 0
-        ? " " + requiredVars.map((v) => `--var ${v.name}=<value>`).join(" ")
-        : ""
-    }`,
+    "# Check for drift in CI:",
+    `#   blueprint check setup.bp --template ${shorthand} --against ${outputDir}`,
   ];
   if (reqLines.length > 0) {
     bpSections.push("", "# ── Required ──────────────────────────────────────────────", ...reqLines);
   }
   if (optLines.length > 0) {
-    bpSections.push("", "# ── Optional overrides ────────────────────────────────────", ...optLines);
+    bpSections.push("", "# ── Optional overrides (uncomment to change) ──────────────", ...optLines);
   }
   const bpFile = bpSections.join("\n");
 
