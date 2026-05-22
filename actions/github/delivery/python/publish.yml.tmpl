@@ -4,13 +4,16 @@
 # Check drift:  blueprint check setup.bp --template . --against .github/workflows \
 #   --var APP_NAME={{ var "APP_NAME" }} --var PYPI_PROJECT_NAME={{ var "PYPI_PROJECT_NAME" }}
 
-# Publish — build, version, and publish {{ var "APP_NAME" }} to PyPI.
+# Publish — build, version, and publish {{ var "APP_NAME" }} to {{ default "REGISTRY" "pypi" }}.
 #
 # Triggers:
-#   push to {{ default "MAIN_BRANCH" "main" }} — Release Please auto-versions, builds dev or stable
+#   push to {{ default "MAIN_BRANCH" "main" }} — Release Please auto-versions
 #   workflow_dispatch                    — manually publish a specific version
 #
-# Uses Trusted Publishing (OIDC) — no tokens needed.
+# Supported registries:
+#   pypi   — Trusted Publishing (OIDC), no tokens needed
+#   github — GitHub Packages, uses built-in GITHUB_TOKEN
+#   jfrog  — JFrog Artifactory, requires secrets (JFROG_URL, JFROG_USER, JFROG_TOKEN)
 
 name: Publish
 
@@ -50,11 +53,11 @@ jobs:
     runs-on: {{ default "RUNNER" "ubuntu-latest" }}
     timeout-minutes: {{ default "TIMEOUT_MINUTES" "10" }}
     steps:
-      - uses: elpic/actions/delivery/pypi/build@v1
+      - uses: elpic/actions/delivery/python/build@v1
         with:
           app-name: {{ var "APP_NAME" }}
           build-task: {{ default "BUILD_TASK" "build" }}
-          pypi-package-dir: {{ default "PYPI_PACKAGE_DIR" "dist" }}
+          pypi-package-dir: {{ default "PACKAGE_DIR" "dist" }}
 
   publish:
     if: always()
@@ -62,10 +65,14 @@ jobs:
     runs-on: {{ default "RUNNER" "ubuntu-latest" }}
     timeout-minutes: {{ default "TIMEOUT_MINUTES" "10" }}
     environment:
-      name: {{ default "PYPI_ENVIRONMENT" "pypi" }}
+      name: {{ default "ENVIRONMENT" (default "REGISTRY" "pypi") }}
       url: https://pypi.org/project/{{ var "PYPI_PROJECT_NAME" }}/
     steps:
-      - uses: elpic/actions/delivery/pypi/publish@v1
+      - uses: elpic/actions/delivery/python/publish@v1
         with:
           app-name: {{ var "APP_NAME" }}
-          pypi-package-dir: {{ default "PYPI_PACKAGE_DIR" "dist" }}
+          registry: {{ default "REGISTRY" "pypi" }}
+          packages-dir: {{ default "PACKAGE_DIR" "dist" }}
+          jfrog-url: ${{ "{{" }} secrets.JFROG_URL {{ "}}" }}
+          jfrog-user: ${{ "{{" }} secrets.JFROG_USER {{ "}}" }}
+          jfrog-token: ${{ "{{" }} secrets.JFROG_TOKEN {{ "}}" }}
