@@ -187,28 +187,25 @@ export const TEMPLATES: TemplateDef[] = [
     ],
   },
   {
-    slug: "actions-github-blueprint-check",
-    path: "actions/github/blueprint-check",
+    slug: "actions-github-drift-check",
+    path: "actions/github/drift-check",
     category: "actions",
     subcategory: "github",
-    name: "Blueprint Drift Check",
-    tagline: "Detect drift between a template and its rendered files on every PR",
+    name: "Drift Check",
+    tagline: "Detect drift between templates and their rendered files on every PR",
     description:
-      "GitHub Actions workflow that runs `blueprint check` on every PR, failing the PR on drift and posting a comment that auto-removes when resolved.",
+      "GitHub Actions workflow that runs `blueprint check` on every PR to detect drift between templates and their rendered output files. Supports checking multiple blueprints in a single workflow via the CHECKS JSON array.",
     blurb:
-      "Delegates to elpic/actions/github/blueprint-check which handles checkout, blueprint install, check, and comment management.",
+      "Delegates to elpic/actions/github/drift-check composite action — no inline checkout, install, or comment management. One workflow can check many blueprints at once.",
     files: [
-      { name: "blueprint-check.yml.tmpl", purpose: "Workflow template" },
+      { name: "drift-check.yml.tmpl", purpose: "Workflow template" },
       { name: "setup.bp", purpose: "Blueprint declaring variables" },
     ],
     vars: [
-      { name: "BLUEPRINT_FILE", required: true, default: null, description: "Path to the .bp file inside the repo (e.g. setup.bp)" },
-      { name: "TEMPLATE", required: true, default: null, description: "Template path or @github: shorthand" },
-      { name: "AGAINST", required: true, default: null, description: "Directory or file to check against (e.g. . or src/)" },
+      { name: "CHECKS", required: true, default: null, description: `JSON array of drift checks: [{"file":"...","template":"...","against":"..."}]` },
       { name: "MAIN_BRANCH", required: false, default: "main", description: "Branch that PRs target" },
       { name: "RUNNER", required: false, default: "ubuntu-latest", description: "GitHub Actions runner image" },
-      { name: "TIMEOUT_MINUTES", required: false, default: "5", description: "Job timeout" },
-      { name: "ACTIONS_VERSION", required: false, default: "v1", description: "Version of elpic/actions composite actions" },
+      { name: "TIMEOUT_MINUTES", required: false, default: "10", description: "Job timeout" },
     ],
   },
 ];

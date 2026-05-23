@@ -11,4 +11,4 @@
 - [Python Integration](/templates/actions-github-integration-python): PR integration workflow for Python.
 - [Python Package Publish](/templates/actions-github-delivery-python): Build and publish Python packages to PyPI, GitHub Packages, or JFrog Artifactory.
 - [GitHub Release Publish](/templates/actions-github-delivery-github-release): Build and create a GitHub Release with artifacts.
-- [Blueprint Drift Check](/templates/actions-github-blueprint-check): GitHub Actions PR check for blueprint drift.
+- [Drift Check](/templates/actions-github-drift-check): GitHub Actions PR check that runs `blueprint check` against one or many blueprints via a CHECKS JSON array.
