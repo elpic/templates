@@ -83,6 +83,8 @@ function TemplatePage() {
     if (name === "BLUEPRINT_FILE") return "setup.bp";
     if (name === "TEMPLATE") return shorthand;
     if (name === "AGAINST") return ".";
+    if (name === "CHECKS")
+      return `[{"file":"setup.bp","template":"@github:elpic/templates@main:containers/python","against":"."}]`;
     return "<value>";
   };
   const reqLines = template.vars
