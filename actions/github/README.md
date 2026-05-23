@@ -11,7 +11,7 @@ Composable GitHub Actions workflow templates.
 | [`integration/python/`](integration/python/) | PR integration — tests with `pytest` + `coverage.xml`, lint, integration tests, security |
 | [`delivery/python/`](delivery/python/) | Python package publish — builds and publishes to PyPI, GitHub Packages, or JFrog |
 | [`delivery/github-release/`](delivery/github-release/) | GitHub Release — builds and creates a release with artifacts and release notes |
-| [`blueprint-check/`](blueprint-check/) | PR drift check — fails the PR and posts a comment if rendered files are out of sync with their template |
+| [`drift-check/`](drift-check/) | PR drift check — fails the PR and posts a comment if rendered files are out of sync with their template. Supports multiple blueprints. |
 
 ## Usage
 

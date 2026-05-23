@@ -37,7 +37,7 @@ blueprint check setup.bp --template Dockerfile.tmpl --against Dockerfile --var A
 | [`actions/github/integration/python/`](actions/github/integration/python/) | Python PR integration — tests, lint, integration tests, security |
 | [`actions/github/delivery/python/`](actions/github/delivery/python/) | Python package publish — build and publish to PyPI, GitHub Packages, or JFrog |
 | [`actions/github/delivery/github-release/`](actions/github/delivery/github-release/) | GitHub Release — build and create a release with artifacts and release notes |
-| [`actions/github/blueprint-check/`](actions/github/blueprint-check/) | PR drift check — detects when rendered files are out of sync |
+| [`actions/github/drift-check/`](actions/github/drift-check/) | PR drift check — detects when rendered files are out of sync. Supports multiple blueprints per workflow. |
 
 ## Requirements
 

@@ -1,0 +1,21 @@
+# GitHub Actions — drift-check workflow blueprint
+#
+# Render into your project:
+#   blueprint render setup.bp --template . --output .github/workflows \
+#     --var CHECKS='[{"file":"setup.bp","template":"@github:elpic/templates@main:actions/github/integration/go","against":".github/workflows"}]'
+#
+# Check drift:
+#   blueprint check setup.bp --template . --against .github/workflows \
+#     --var CHECKS='[{"file":"setup.bp","template":"@github:elpic/templates@main:actions/github/integration/go","against":".github/workflows"}]'
+#
+# Override at render time with --var, e.g.:
+#   blueprint render setup.bp --template . --output .github/workflows \
+#     --var CHECKS='[{"file":"setup.bp","template":"@github:...","against":"."},{"file":"integration.bp","template":"@github:...","against":".github/workflows"}]'
+
+# ── Required ──────────────────────────────────────────────────────────────────
+var CHECKS   # JSON array of drift checks: [{"file":"...","template":"...","against":"..."}]
+
+# ── Optional overrides ────────────────────────────────────────────────────────
+# var MAIN_BRANCH main            # default: main
+# var RUNNER ubuntu-latest        # default: ubuntu-latest
+# var TIMEOUT_MINUTES 10          # default: 10
