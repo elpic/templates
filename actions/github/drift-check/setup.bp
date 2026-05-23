@@ -16,6 +16,7 @@
 var CHECKS   # JSON array of drift checks: [{"file":"...","template":"...","against":"..."}]
 
 # ── Optional overrides ────────────────────────────────────────────────────────
+# var ACTIONS_VERSION v2          # default: v2 — version of elpic/actions composite actions
 # var MAIN_BRANCH main            # default: main
 # var RUNNER ubuntu-latest        # default: ubuntu-latest
 # var TIMEOUT_MINUTES 10          # default: 10
