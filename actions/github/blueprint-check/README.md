@@ -2,6 +2,8 @@
 
 GitHub Actions workflow that runs `blueprint check` on every PR to detect drift between a template and its rendered output files.
 
+Delegates to `elpic/actions/github/blueprint-check` composite action — no inline checkout, install, or comment management.
+
 Fails the PR if any rendered file is out of sync with its template, and posts (or updates) a comment explaining what drifted and how to fix it. The comment is automatically removed once drift is resolved.
 
 ## Variables
@@ -13,8 +15,6 @@ Fails the PR if any rendered file is out of sync with its template, and posts (o
 | `AGAINST` | yes | — | Directory or file to check against (e.g. `.` or `src/`) |
 | `MAIN_BRANCH` | no | `main` | Branch that PRs target |
 | `RUNNER` | no | `ubuntu-latest` | GitHub Actions runner image |
-| `CHECKOUT_VERSION` | no | `v4` | Version of `actions/checkout` to pin |
-| `BLUEPRINT_VERSION` | no | `latest` | Blueprint release to install (e.g. `1.2.0`) |
 | `TIMEOUT_MINUTES` | no | `5` | Job timeout |
 
 ## Usage
