@@ -12,6 +12,7 @@ Supports checking multiple blueprints in a single workflow via the `CHECKS` JSON
 |----------|----------|---------|-------------|
 | `CHECKS` | yes | — | JSON array of checks: `[{"file":"...","template":"...","against":"..."}]` |
 | `MAIN_BRANCH` | no | `main` | Branch that PRs target |
+| `ACTIONS_VERSION` | no | `v2` | Version of `elpic/actions` composite actions |
 | `RUNNER` | no | `ubuntu-latest` | GitHub Actions runner image |
 | `TIMEOUT_MINUTES` | no | `10` | Job timeout |
 

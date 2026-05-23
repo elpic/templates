@@ -25,7 +25,7 @@ jobs:
     steps:
 {{ range toValue "CHECKS" }}
       - name: 'Check {{ .file }}'
-        uses: elpic/actions/github/drift-check@v1
+        uses: elpic/actions/github/drift-check@{{ default "ACTIONS_VERSION" "v2" }}
         with:
           blueprint-file: '{{ .file }}'
           template: '{{ .template }}'
