@@ -134,16 +134,16 @@ export const TEMPLATES: TemplateDef[] = [
     ],
   },
   {
-    slug: "actions-github-delivery-pypi",
-    path: "actions/github/delivery/pypi",
+    slug: "actions-github-delivery-python",
+    path: "actions/github/delivery/python",
     category: "actions",
     subcategory: "github",
-    name: "PyPI Publish",
-    tagline: "Build and publish Python packages to PyPI via Trusted Publishing",
+    name: "Python Package Publish",
+    tagline: "Build and publish Python packages to PyPI, GitHub Packages, or JFrog",
     description:
-      "GitHub Actions workflow that builds and publishes Python packages to PyPI using Trusted Publishing (OIDC), auto-versioned by Release Please on every push to main.",
+      "GitHub Actions workflow that builds and publishes Python packages to PyPI (Trusted Publishing / OIDC), GitHub Packages, or JFrog Artifactory, auto-versioned by Release Please on every push to main.",
     blurb:
-      "Delegates build and publish to elpic/actions/delivery/pypi composite actions.",
+      "Delegates build and publish to elpic/actions/delivery/python composite actions. Switch registries with a single REGISTRY variable.",
     files: [
       { name: "publish.yml.tmpl", purpose: "Workflow template" },
       { name: "setup.bp", purpose: "Blueprint declaring variables" },
@@ -151,11 +151,12 @@ export const TEMPLATES: TemplateDef[] = [
     vars: [
       { name: "APP_NAME", required: true, default: null, description: "Application name; used in artifact names" },
       { name: "PYPI_PROJECT_NAME", required: true, default: null, description: "PyPI project name (used in the published package URL)" },
+      { name: "REGISTRY", required: false, default: "pypi", description: "Target registry: pypi, github, or jfrog" },
       { name: "MAIN_BRANCH", required: false, default: "main", description: "Branch that triggers automated publishing" },
       { name: "RUNNER", required: false, default: "ubuntu-latest", description: "GitHub Actions runner image" },
       { name: "BUILD_TASK", required: false, default: "build", description: "mise task that builds the package wheel" },
-      { name: "PYPI_PACKAGE_DIR", required: false, default: "dist", description: "Directory containing built artifacts" },
-      { name: "PYPI_ENVIRONMENT", required: false, default: "pypi", description: "GitHub deployment environment name" },
+      { name: "PACKAGE_DIR", required: false, default: "dist", description: "Directory containing built artifacts" },
+      { name: "ENVIRONMENT", required: false, default: "pypi", description: "GitHub deployment environment name (defaults to match REGISTRY)" },
       { name: "RELEASE_PLEASE_CONFIG", required: false, default: "release-please-config.json", description: "Path to Release Please config file" },
       { name: "TIMEOUT_MINUTES", required: false, default: "10", description: "Timeout applied to every job" },
     ],

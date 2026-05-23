@@ -9,6 +9,6 @@
 - [Go Integration](/templates/actions-github-integration-go): PR integration workflow for Go projects.
 - [Node Integration](/templates/actions-github-integration-node): PR integration workflow for Node.js/TypeScript.
 - [Python Integration](/templates/actions-github-integration-python): PR integration workflow for Python.
-- [PyPI Publish](/templates/actions-github-delivery-pypi): Build and publish Python packages to PyPI via Trusted Publishing.
+- [Python Package Publish](/templates/actions-github-delivery-python): Build and publish Python packages to PyPI, GitHub Packages, or JFrog Artifactory.
 - [GitHub Release Publish](/templates/actions-github-delivery-github-release): Build and create a GitHub Release with artifacts.
 - [Blueprint Drift Check](/templates/actions-github-blueprint-check): GitHub Actions PR check for blueprint drift.
