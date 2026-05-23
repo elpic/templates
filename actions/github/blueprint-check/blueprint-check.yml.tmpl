@@ -25,6 +25,6 @@ jobs:
     steps:
       - uses: elpic/actions/github/blueprint-check@v1
         with:
-          blueprint-file: {{ var "BLUEPRINT_FILE" }}
-          template: {{ var "TEMPLATE" }}
-          against: {{ var "AGAINST" }}
+          blueprint-file: '{{ var "BLUEPRINT_FILE" }}'
+          template: '{{ var "TEMPLATE" }}'
+          against: '{{ var "AGAINST" }}'
