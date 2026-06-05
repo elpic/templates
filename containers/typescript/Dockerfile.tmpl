@@ -7,31 +7,19 @@
 # Build arguments         #
 ###########################
 # These are build-time only and do not leak into the final image.
-ARG PYTHON_VERSION={{ var "PYTHON_VERSION" }}
-ARG UV_VERSION={{ default "UV_VERSION" "latest" }}
+ARG NODE_VERSION={{ var "NODE_VERSION" }}
 ARG REGISTRY={{ default "REGISTRY" "docker.io" }}
 ARG WORKDIR={{ default "WORKDIR" "/app" }}
 
 ###########################
-# Stage 1: dependencies   #
+# Stage 1: build          #
 ###########################
 
-FROM ${REGISTRY}/python:${PYTHON_VERSION}-slim AS deps
+FROM ${REGISTRY}/node:${NODE_VERSION}-slim AS build
 
-ARG UV_VERSION
 ARG WORKDIR
 
 LABEL maintainer="{{ var "APP_NAME" }}"
-
-# Install uv — fast Python package manager
-COPY --from=ghcr.io/astral-sh/uv:${UV_VERSION} /uv /uvx /usr/local/bin/
-
-ENV UV_LINK_MODE=copy \
-    UV_COMPILE_BYTECODE=1 \
-    UV_NO_PROGRESS=1 \
-    UV_NO_MANAGED_PYTHON=1 \
-    UV_PYTHON_DOWNLOADS=never \
-    VIRTUAL_ENV=${WORKDIR}/.venv
 
 # Install build-only system packages — not present in the final image
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -41,20 +29,27 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Set working directory
 WORKDIR ${WORKDIR}
 
-# Install only production dependencies — bind-mount lockfiles so they don't
-# create an extra layer. Layer is fully cached until pyproject.toml/uv.lock change.
-RUN --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,source=uv.lock,target=uv.lock \
-    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    uv sync --frozen --no-install-project --no-dev
+# Install all dependencies (including devDependencies) — bind-mount manifest files
+# so they don't create an extra layer. Layer is fully cached until
+# package.json/package-lock.json change.
+RUN --mount=type=cache,target=/root/.npm \
+    --mount=type=bind,source=package.json,target=package.json \
+    --mount=type=bind,source=package-lock.json,target=package-lock.json \
+    npm ci
+
+# Build TypeScript — assumes "build" script in package.json runs tsc
+COPY . .
+RUN npm run build
 
 ###########################
 # Stage 2: runtime        #
 ###########################
 
-FROM ${REGISTRY}/python:${PYTHON_VERSION}-slim AS runtime
+FROM ${REGISTRY}/node:${NODE_VERSION}-slim AS runtime
 
 ARG WORKDIR
+
+ENV NODE_ENV=production
 
 # Install only runtime system packages — no build tools
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -68,21 +63,22 @@ RUN groupadd --gid 1001 app \
 # Set working directory
 WORKDIR ${WORKDIR}
 
-# Copy virtualenv from deps stage and application code
-COPY --from=deps --chown=app:app ${WORKDIR}/.venv .venv
-COPY --chown=app:app . .
+# Copy compiled output from build stage
+COPY --from=build --chown=app:app ${WORKDIR}/dist ./dist
 
-# entrypoint.sh runs pre-start tasks (migrations, etc.) then execs CMD
+# Copy package manifests and install production dependencies only
+COPY --from=build --chown=app:app ${WORKDIR}/package*.json ./
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --omit=dev --ignore-scripts
+
+# entrypoint.sh runs pre-start tasks then execs CMD
 COPY --chown=app:app entrypoint.sh .
 RUN chmod +x entrypoint.sh
 
 USER app
 
-ENV PATH="${WORKDIR}/.venv/bin:$PATH" \
-    PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONFAULTHANDLER=1 \
-    PYTHONHASHSEED=random
+ENV PATH="${WORKDIR}/node_modules/.bin:$PATH" \
+    NODE_ENV=production
 
 ###########################
 # Metadata                #
@@ -97,14 +93,14 @@ LABEL org.opencontainers.image.title="{{ var "APP_NAME" }}" \
 # Run the app             #
 ###########################
 
-EXPOSE {{ default "PORT" "8000" }}
+EXPOSE {{ default "PORT" "3000" }}
 
 # Increase start-period to allow for migrations, warm-up, etc.
 # Override interval, timeout, start-period, or retries via --var HC_*.
 HEALTHCHECK --interval={{ default "HC_INTERVAL" "30s" }} --timeout={{ default "HC_TIMEOUT" "5s" }} --start-period={{ default "HC_START_PERIOD" "120s" }} --retries={{ default "HC_RETRIES" "3" }} \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:{{ default "PORT" "8000" }}/health')"
+    CMD wget --no-verbose --tries=1 --spider http://localhost:{{ default "PORT" "3000" }}/health || exit 1
 
 # entrypoint.sh handles pre-start tasks; CMD is the actual application command.
-# Default: python -m <APP_NAME>. Override with --var CMD="gunicorn myapp.wsgi"
+# Default: node dist/index.js. Override with --var CMD="node dist/server.js"
 ENTRYPOINT ["./entrypoint.sh"]
-CMD {{ default "CMD" (printf "python -m %s" (var "APP_NAME")) | toArgs }}
+CMD {{ default "CMD" "node dist/index.js" | toArgs }}

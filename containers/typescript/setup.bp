@@ -1,4 +1,4 @@
-# Python container blueprint
+# TypeScript container blueprint
 #
 # Render all templates into current directory:
 #   blueprint render setup.bp --template . --output . --var APP_NAME=myapp
@@ -13,20 +13,19 @@
 #     --var PORT=9000
 
 # ── Required ─────────────────────────────────────────────────────────────────
-var APP_NAME          # Python module used as entrypoint (python -m <APP_NAME>)
+var APP_NAME            # Application name (used for labels, metadata)
 
 # ── Project-level overrides ──────────────────────────────────────────────────
 # Uncomment to set a project-level constant instead of passing --var each time.
 # The template provides sensible defaults when these are not set.
 #
-var PYTHON_VERSION 3.12.3     # Python version — also used by mise
+var NODE_VERSION 22.14.0     # Node.js version — also used by mise
 # var REGISTRY docker.io       # default: docker.io
-# var PORT 8000                # default: 8000
+# var PORT 3000                # default: 3000
 # var WORKDIR /app             # default: /app
-# var UV_VERSION latest        # default: latest
-# var CMD python -m myapp      # default: python -m <APP_NAME> — override for gunicorn/uvicorn
-# var PRE_START "python manage.py migrate"  # default: none — runs before CMD (production)
-# var PRE_START_LOCAL "python manage.py seed_data"  # default: none — runs before CMD (local)
+# var CMD node dist/index.js   # default: node dist/index.js
+# var PRE_START "npm run migrate && npx prisma generate"  # default: none — runs before CMD (production)
+# var PRE_START_LOCAL "npx prisma db seed"                # default: none — runs before CMD (local)
 #
 # # Healthcheck — tune these for your app's startup time and reliability needs
 # var HC_INTERVAL 30s          # default: 30s
@@ -35,10 +34,4 @@ var PYTHON_VERSION 3.12.3     # Python version — also used by mise
 # var HC_RETRIES 3             # default: 3
 
 # ── Versions (single source of truth) ────────────────────────────────────────
-mise python@{{ var "PYTHON_VERSION" }}
-
-# ── System dependencies ───────────────────────────────────────────────────────
-# Build-stage packages are available during compilation but not in the final image.
-# Runtime packages are copied into the final image only.
-install build-essential libpq-dev on: [linux] stage: build
-install libpq5 ca-certificates on: [linux] stage: runtime
+mise node@{{ var "NODE_VERSION" }}

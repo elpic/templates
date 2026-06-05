@@ -19,3 +19,4 @@ blueprint check setup.bp --template Dockerfile.tmpl --against Dockerfile --var A
 | Template | Language / Stack | Description |
 |----------|-----------------|-------------|
 | [`python/`](python/) | Python | Multi-stage production image, non-root user, dev variant with volumes |
+| [`typescript/`](typescript/) | TypeScript / Node.js | Multi-stage with tsc build stage, non-root user, production-only deps, dev variant with volumes |

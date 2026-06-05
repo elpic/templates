@@ -7,11 +7,14 @@ set -e
 # Pre-start hooks         #
 ###########################
 
-# Add your pre-start commands here. Examples:
-#
-# Django:
-#   python manage.py collectstatic --clear --no-input -v 0
-#   python manage.py migrate
+# Configure pre-start commands via PRE_START variable in setup.bp or --var.
+# Examples:
+#   --var PRE_START="python manage.py migrate && python manage.py collectstatic --no-input"
+
+{{ if ne (default "PRE_START" "") "" }}
+echo 'Running pre-start hooks'
+{{ default "PRE_START" "" }}
+{{ end }}
 
 ###########################
 # Start application       #
