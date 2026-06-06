@@ -7,16 +7,13 @@ set -e
 # Dependencies            #
 ###########################
 
+# Always sync dependencies — npm cache makes this near-instant when nothing changed.
 echo 'Installing dependencies'
-uv sync
+npm install
 
 ###########################
 # Pre-start hooks         #
 ###########################
-
-# Configure pre-start commands via PRE_START_LOCAL variable in setup.bp or --var.
-# Examples:
-#   --var PRE_START_LOCAL="uv run python manage.py seed_data"
 
 {{ if ne (default "PRE_START_LOCAL" "") "" }}
 echo 'Running pre-start hooks'

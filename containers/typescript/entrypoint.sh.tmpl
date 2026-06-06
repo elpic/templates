@@ -4,23 +4,16 @@
 set -e
 
 ###########################
-# Dependencies            #
-###########################
-
-echo 'Installing dependencies'
-uv sync
-
-###########################
 # Pre-start hooks         #
 ###########################
 
-# Configure pre-start commands via PRE_START_LOCAL variable in setup.bp or --var.
+# Configure pre-start commands via PRE_START variable in setup.bp or --var.
 # Examples:
-#   --var PRE_START_LOCAL="uv run python manage.py seed_data"
+#   --var PRE_START="npm run migrate && npx prisma generate"
 
-{{ if ne (default "PRE_START_LOCAL" "") "" }}
+{{ if ne (default "PRE_START" "") "" }}
 echo 'Running pre-start hooks'
-{{ default "PRE_START_LOCAL" "" }}
+{{ default "PRE_START" "" }}
 {{ end }}
 
 ###########################
