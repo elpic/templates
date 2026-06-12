@@ -6,6 +6,7 @@
 
 - [Home](/): Overview of all blueprint templates, categories, and the render command.
 - [Python Container](/templates/containers-python): Multi-stage prod + dev Dockerfiles for Python.
+- [TypeScript Container](/templates/containers-typescript): Multi-stage prod + dev Dockerfiles for Node.js / TypeScript.
 - [Go Integration](/templates/actions-github-integration-go): PR integration workflow for Go projects.
 - [Node Integration](/templates/actions-github-integration-node): PR integration workflow for Node.js/TypeScript.
 - [Python Integration](/templates/actions-github-integration-python): PR integration workflow for Python.
