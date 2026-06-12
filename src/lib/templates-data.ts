@@ -50,6 +50,34 @@ export const TEMPLATES: TemplateDef[] = [
     ],
   },
   {
+    slug: "containers-typescript",
+    path: "containers/typescript",
+    category: "containers",
+    subcategory: null,
+    name: "TypeScript Container",
+    tagline: "Multi-stage production + dev Dockerfiles for Node.js / TypeScript",
+    description:
+      "Production-grade two-stage Dockerfile and a dev variant for Node.js/TypeScript projects, rendered from a single blueprint that drives Node version and runtime command.",
+    blurb:
+      "Two-stage prod image with non-root user, BuildKit cache mounts, mise-managed Node, and a wrapper entrypoint that handles pre-start tasks.",
+    files: [
+      { name: "Dockerfile.tmpl", purpose: "Production — two-stage, non-root, minimal final image" },
+      { name: "Dockerfile.local.tmpl", purpose: "Development — single stage, volume-mounted code" },
+      { name: "entrypoint.sh.tmpl", purpose: "Production entrypoint — runs pre-start tasks then execs CMD" },
+      { name: "local-entrypoint.sh.tmpl", purpose: "Dev entrypoint — installs deps then execs CMD" },
+      { name: ".dockerignore.tmpl", purpose: "Excludes node_modules, cache, secrets, editor files" },
+      { name: "setup.bp", purpose: "Blueprint — Node version, runtime command, variables" },
+    ],
+    vars: [
+      { name: "APP_NAME", required: true, default: null, description: "Application name used for labels and metadata" },
+      { name: "NODE_VERSION", required: false, default: "22.14.0", description: "Node.js version — also used by mise" },
+      { name: "REGISTRY", required: false, default: "docker.io", description: "Container registry prefix" },
+      { name: "WORKDIR", required: false, default: "/app", description: "Working directory inside the container" },
+      { name: "PORT", required: false, default: "3000", description: "Port exposed by the application" },
+      { name: "CMD", required: false, default: "node dist/index.js", description: "Default container command" },
+    ],
+  },
+  {
     slug: "actions-github-integration-go",
     path: "actions/github/integration/go",
     category: "actions",
