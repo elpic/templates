@@ -1,0 +1,25 @@
+# GitHub Actions — Tauri integration workflow blueprint
+#
+# Render into your project:
+#   blueprint render setup.bp --template . --output .github/workflows --var APP_NAME=pulsetray
+#
+# Check drift:
+#   blueprint check setup.bp --template . --against .github/workflows --var APP_NAME=pulsetray
+#
+# Override any default at render time with --var, e.g.:
+#   blueprint render setup.bp --template . --output .github/workflows \
+#     --var APP_NAME=pulsetray \
+#     --var MAIN_BRANCH=main \
+#     --var RUNNER=ubuntu-latest
+
+# ── Required ──────────────────────────────────────────────────────────────────
+var APP_NAME          # Name of the application (used in artifact names)
+
+# ── Optional overrides ────────────────────────────────────────────────────────
+# var MAIN_BRANCH main              # default: main
+# var RUNNER ubuntu-latest          # default: ubuntu-latest
+# var TIMEOUT_MINUTES 15            # per-job timeout (minutes)
+
+# ── Mise tool versions (pinned here, queried in templates) ────────────────────
+mise node@24
+mise rust@stable
