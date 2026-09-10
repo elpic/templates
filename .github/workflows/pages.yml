@@ -56,9 +56,13 @@ jobs:
           fi
           if [ ! -f dist/server/wrangler.json ]; then
             echo "dist/server/wrangler.json missing - generating a fallback config."
-            MAIN=index.mjs
-            [ -f dist/server/index.mjs ] || MAIN=server.js
-            [ -f "dist/server/$MAIN" ] || { echo "ERROR: no server entry found in dist/server"; ls -la dist/server; exit 1; }
+            MAIN=$(find dist/server -maxdepth 1 -type f \( -name '*.mjs' -o -name '*.js' \) -printf '%f\n' | sort | head -n 1)
+            if [ -z "$MAIN" ]; then
+              echo "ERROR: no JavaScript server entry found in dist/server"
+              ls -la dist/server
+              exit 1
+            fi
+            echo "Using server entry: $MAIN"
             printf '%s\n' \
               '{' \
               '  "compatibility_date": "2025-09-24",' \
