@@ -67,6 +67,7 @@ jobs:
           # Pre-render every page listed in the sitemap so deep links and hard
           # reloads (e.g. /templates/<slug>) resolve to a real HTML file.
           curl -sSL http://localhost:8788/sitemap.xml > /tmp/sitemap.xml
+          cp /tmp/sitemap.xml dist/client/sitemap.xml
           PATHS=$(grep -o '<loc>[^<]*</loc>' /tmp/sitemap.xml \
             | sed -e 's|<loc>||' -e 's|</loc>||' \
             | sed -e 's|https\?://[^/]*||' \
