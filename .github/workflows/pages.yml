@@ -48,41 +48,71 @@ jobs:
           echo "--- dist/server ---"
           ls -la dist/server || true
 
-      - name: Ensure worker config exists
+      - name: Locate built app
         run: |
-          if [ ! -d dist/server ]; then
-            echo "ERROR: dist/server is missing; the build did not produce a server bundle."
+          CLIENT_DIR=""
+          for candidate in dist/client .output/public dist/public; do
+            if [ -d "$candidate" ]; then
+              CLIENT_DIR="$candidate"
+              break
+            fi
+          done
+
+          if [ -z "$CLIENT_DIR" ]; then
+            echo "ERROR: no client output directory was found."
+            find dist .output -maxdepth 3 -type f 2>/dev/null | sort || true
             exit 1
           fi
-          if [ ! -f dist/server/wrangler.json ]; then
-            echo "dist/server/wrangler.json missing - generating a fallback config."
-            MAIN=$(find dist/server -maxdepth 1 -type f \( -name '*.mjs' -o -name '*.js' \) -printf '%f\n' | sort | head -n 1)
+
+          WRANGLER_CONFIG=$(find dist .output -type f \( -name 'wrangler.json' -o -name 'wrangler.jsonc' \) 2>/dev/null | head -n 1 || true)
+          if [ -z "$WRANGLER_CONFIG" ]; then
+            SERVER_DIR=""
+            for candidate in dist/server .output/server dist; do
+              if [ -d "$candidate" ] && find "$candidate" -maxdepth 1 -type f \( -name '*.mjs' -o -name '*.js' \) | grep -q .; then
+                SERVER_DIR="$candidate"
+                break
+              fi
+            done
+
+            if [ -z "$SERVER_DIR" ]; then
+              echo "ERROR: no server bundle was found in any supported build location."
+              find dist .output -maxdepth 3 -type f 2>/dev/null | sort || true
+              exit 1
+            fi
+
+            echo "Worker config missing - generating a fallback config in $SERVER_DIR."
+            MAIN=$(find "$SERVER_DIR" -maxdepth 1 -type f \( -name 'index.mjs' -o -name 'index.js' -o -name 'server.mjs' -o -name 'server.js' -o -name '*.mjs' -o -name '*.js' \) -printf '%f\n' | sort | head -n 1)
             if [ -z "$MAIN" ]; then
-              echo "ERROR: no JavaScript server entry found in dist/server"
-              ls -la dist/server
+              echo "ERROR: no JavaScript server entry found in $SERVER_DIR"
+              ls -la "$SERVER_DIR"
               exit 1
             fi
             echo "Using server entry: $MAIN"
+            ASSETS_DIR=$(realpath --relative-to="$SERVER_DIR" "$CLIENT_DIR")
             printf '%s\n' \
               '{' \
               '  "compatibility_date": "2025-09-24",' \
               '  "name": "tanstack-start-app",' \
               '  "compatibility_flags": ["nodejs_compat"],' \
               "  \"main\": \"$MAIN\"," \
-              '  "assets": { "binding": "ASSETS", "directory": "../client" },' \
+              "  \"assets\": { \"binding\": \"ASSETS\", \"directory\": \"$ASSETS_DIR\" }," \
               '  "no_bundle": true,' \
               '  "rules": [{ "type": "ESModule", "globs": ["**/*.mjs", "**/*.js"] }]' \
-              '}' > dist/server/wrangler.json
-
+              '}' > "$SERVER_DIR/wrangler.json"
+            WRANGLER_CONFIG="$SERVER_DIR/wrangler.json"
           fi
-          cat dist/server/wrangler.json
-          mkdir -p dist/client && touch dist/client/.nojekyll
 
+          echo "CLIENT_DIR=$CLIENT_DIR" >> "$GITHUB_ENV"
+          echo "WRANGLER_CONFIG=$WRANGLER_CONFIG" >> "$GITHUB_ENV"
+          echo "Client output: $CLIENT_DIR"
+          echo "Worker config: $WRANGLER_CONFIG"
+          cat "$WRANGLER_CONFIG"
+          touch "$CLIENT_DIR/.nojekyll"
 
       - name: Capture SSR-rendered HTML
         run: |
           bunx wrangler dev \
-            --config dist/server/wrangler.json \
+            --config "$WRANGLER_CONFIG" \
             --port 8788 --ip localhost --inspector-port 0 --local > /tmp/wrangler.log 2>&1 &
           WRANGLER_PID=$!
 
@@ -107,12 +137,12 @@ jobs:
 
           BASE="${{ env.BASE_PATH }}"
 
-          curl -sSL "http://localhost:8788${BASE}/" > dist/client/index.html
+          curl -fsSL "http://localhost:8788${BASE}/" > "$CLIENT_DIR/index.html"
 
           # Pre-render every page listed in the sitemap so deep links and hard
           # reloads (e.g. /templates/<slug>) resolve to a real HTML file.
           curl -sSL "http://localhost:8788${BASE}/sitemap.xml" > /tmp/sitemap.xml
-          cp /tmp/sitemap.xml dist/client/sitemap.xml
+          cp /tmp/sitemap.xml "$CLIENT_DIR/sitemap.xml"
           PATHS=$(grep -o '<loc>[^<]*</loc>' /tmp/sitemap.xml \
             | sed -e 's|<loc>||' -e 's|</loc>||' \
             | sed -e 's|https\?://[^/]*||' || true)
@@ -125,7 +155,7 @@ jobs:
             rel="${p#$BASE}"
             rel="${rel%/}"
             [ -n "$rel" ] || continue
-            out="dist/client${rel}/index.html"
+            out="$CLIENT_DIR${rel}/index.html"
             mkdir -p "$(dirname "$out")"
             curl -sSL "http://localhost:8788${p}" > "$out"
             echo "Captured $out ($(wc -c < "$out") bytes)"
@@ -133,23 +163,23 @@ jobs:
 
 
           # SPA-style fallback for any unlisted path.
-          cp dist/client/index.html dist/client/404.html
+          cp "$CLIENT_DIR/index.html" "$CLIENT_DIR/404.html"
 
           kill $WRANGLER_PID 2>/dev/null || true
           wait $WRANGLER_PID 2>/dev/null || true
 
-          SIZE=$(wc -c < dist/client/index.html)
-          echo "Captured dist/client/index.html ($SIZE bytes)"
+          SIZE=$(wc -c < "$CLIENT_DIR/index.html")
+          echo "Captured $CLIENT_DIR/index.html ($SIZE bytes)"
           if [ "$SIZE" -lt 100 ]; then
             echo "ERROR: captured HTML is too small ($SIZE bytes)"
-            head -5 dist/client/index.html
+            head -5 "$CLIENT_DIR/index.html"
             exit 1
           fi
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
         with:
-          path: ./dist/client
+          path: ${{ env.CLIENT_DIR }}
 
       - name: Deploy to GitHub Pages
         id: deployment
