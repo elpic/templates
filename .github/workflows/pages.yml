@@ -81,7 +81,16 @@ jobs:
             fi
 
             echo "Worker config missing - generating a fallback config in $SERVER_DIR."
-            MAIN=$(find "$SERVER_DIR" -maxdepth 1 -type f \( -name 'index.mjs' -o -name 'index.js' -o -name 'server.mjs' -o -name 'server.js' -o -name '*.mjs' -o -name '*.js' \) -printf '%f\n' | sort | head -n 1)
+            MAIN=""
+            for candidate in index.mjs index.js server.mjs server.js; do
+              if [ -f "$SERVER_DIR/$candidate" ]; then
+                MAIN="$candidate"
+                break
+              fi
+            done
+            if [ -z "$MAIN" ]; then
+              MAIN=$(find "$SERVER_DIR" -maxdepth 1 -type f \( -name '*.mjs' -o -name '*.js' \) -printf '%f\n' | sort | head -n 1)
+            fi
             if [ -z "$MAIN" ]; then
               echo "ERROR: no JavaScript server entry found in $SERVER_DIR"
               ls -la "$SERVER_DIR"
