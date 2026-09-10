@@ -39,14 +39,50 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Build with base path
-        run: bun run build -- --base=${{ env.BASE_PATH }}/
+        run: bun run build --base=${{ env.BASE_PATH }}/
+
+      - name: Inspect build output
+        run: |
+          echo "--- dist ---"
+          ls -la dist || true
+          echo "--- dist/server ---"
+          ls -la dist/server || true
+
+      - name: Ensure worker config exists
+        run: |
+          if [ ! -d dist/server ]; then
+            echo "ERROR: dist/server is missing; the build did not produce a server bundle."
+            exit 1
+          fi
+          if [ ! -f dist/server/wrangler.json ]; then
+            echo "dist/server/wrangler.json missing - generating a fallback config."
+            MAIN=index.mjs
+            [ -f dist/server/index.mjs ] || MAIN=server.js
+            [ -f "dist/server/$MAIN" ] || { echo "ERROR: no server entry found in dist/server"; ls -la dist/server; exit 1; }
+            cat > dist/server/wrangler.json <<EOF
+          {
+            "compatibility_date": "2025-09-24",
+            "name": "tanstack-start-app",
+            "compatibility_flags": ["nodejs_compat"],
+            "main": "$MAIN",
+            "assets": { "binding": "ASSETS", "directory": "../client" },
+            "no_bundle": true,
+            "rules": [
+              { "type": "ESModule", "globs": ["**/*.mjs", "**/*.js"] }
+            ]
+          }
+          EOF
+          fi
+          cat dist/server/wrangler.json
 
       - name: Capture SSR-rendered HTML
         run: |
-          ./node_modules/.bin/wrangler dev \
+          bunx wrangler dev \
             --config dist/server/wrangler.json \
-            --port 8788 --ip localhost --inspector-port 0 --local &
+            --port 8788 --ip localhost --inspector-port 0 --local > /tmp/wrangler.log 2>&1 &
           WRANGLER_PID=$!
+
+
 
           for i in $(seq 1 30); do
             if curl -s -o /dev/null http://localhost:8788 2>/dev/null; then
