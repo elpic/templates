@@ -63,6 +63,29 @@ jobs:
           fi
 
           curl -sSL http://localhost:8788 > dist/client/index.html
+
+          # Pre-render every page listed in the sitemap so deep links and hard
+          # reloads (e.g. /templates/<slug>) resolve to a real HTML file.
+          curl -sSL http://localhost:8788/sitemap.xml > /tmp/sitemap.xml
+          cp /tmp/sitemap.xml dist/client/sitemap.xml
+          PATHS=$(grep -o '<loc>[^<]*</loc>' /tmp/sitemap.xml \
+            | sed -e 's|<loc>||' -e 's|</loc>||' \
+            | sed -e 's|https\?://[^/]*||' \
+            | grep -v '^/\?$' || true)
+
+          for p in $PATHS; do
+            case "$p" in
+              */sitemap.xml) continue ;;
+            esac
+            out="dist/client${p%/}/index.html"
+            mkdir -p "$(dirname "$out")"
+            curl -sSL "http://localhost:8788${p}" > "$out"
+            echo "Captured $out ($(wc -c < "$out") bytes)"
+          done
+
+          # SPA-style fallback for any unlisted path.
+          cp dist/client/index.html dist/client/404.html
+
           kill $WRANGLER_PID 2>/dev/null || true
           wait $WRANGLER_PID 2>/dev/null || true
 

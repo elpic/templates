@@ -358,10 +358,10 @@ function Landing() {
             Pair any template with{" "}
             <Link
               to="/templates/$slug"
-              params={{ slug: "actions-github-blueprint-check" }}
+              params={{ slug: "actions-github-drift-check" }}
               className="text-primary hover:underline"
             >
-              actions/github/blueprint-check
+              actions/github/drift-check
             </Link>{" "}
             in your repo. On every PR it runs{" "}
             <code className="rounded bg-secondary px-1.5 py-0.5 font-mono text-sm">
