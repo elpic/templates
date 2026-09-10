@@ -59,19 +59,17 @@ jobs:
             MAIN=index.mjs
             [ -f dist/server/index.mjs ] || MAIN=server.js
             [ -f "dist/server/$MAIN" ] || { echo "ERROR: no server entry found in dist/server"; ls -la dist/server; exit 1; }
-            cat > dist/server/wrangler.json <<EOF
-          {
-            "compatibility_date": "2025-09-24",
-            "name": "tanstack-start-app",
-            "compatibility_flags": ["nodejs_compat"],
-            "main": "$MAIN",
-            "assets": { "binding": "ASSETS", "directory": "../client" },
-            "no_bundle": true,
-            "rules": [
-              { "type": "ESModule", "globs": ["**/*.mjs", "**/*.js"] }
-            ]
-          }
-          EOF
+            printf '%s\n' \
+              '{' \
+              '  "compatibility_date": "2025-09-24",' \
+              '  "name": "tanstack-start-app",' \
+              '  "compatibility_flags": ["nodejs_compat"],' \
+              "  \"main\": \"$MAIN\"," \
+              '  "assets": { "binding": "ASSETS", "directory": "../client" },' \
+              '  "no_bundle": true,' \
+              '  "rules": [{ "type": "ESModule", "globs": ["**/*.mjs", "**/*.js"] }]' \
+              '}' > dist/server/wrangler.json
+
           fi
           cat dist/server/wrangler.json
 
