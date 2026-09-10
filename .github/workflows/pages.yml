@@ -84,7 +84,7 @@ jobs:
 
 
 
-          for i in $(seq 1 30); do
+          for i in $(seq 1 60); do
             if curl -s -o /dev/null http://localhost:8788 2>/dev/null; then
               SERVER_READY=true
               break
@@ -93,10 +93,13 @@ jobs:
           done
 
           if [ "$SERVER_READY" != true ]; then
-            echo "ERROR: wrangler dev did not start within 30 seconds"
+            echo "ERROR: wrangler dev did not start within 60 seconds"
+            echo "--- wrangler log ---"
+            cat /tmp/wrangler.log || true
             kill $WRANGLER_PID 2>/dev/null || true
             exit 1
           fi
+
 
           curl -sSL http://localhost:8788 > dist/client/index.html
 
