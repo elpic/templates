@@ -101,26 +101,32 @@ jobs:
           fi
 
 
-          curl -sSL http://localhost:8788 > dist/client/index.html
+          BASE="${{ env.BASE_PATH }}"
+
+          curl -sSL "http://localhost:8788${BASE}/" > dist/client/index.html
 
           # Pre-render every page listed in the sitemap so deep links and hard
           # reloads (e.g. /templates/<slug>) resolve to a real HTML file.
-          curl -sSL http://localhost:8788/sitemap.xml > /tmp/sitemap.xml
+          curl -sSL "http://localhost:8788${BASE}/sitemap.xml" > /tmp/sitemap.xml
           cp /tmp/sitemap.xml dist/client/sitemap.xml
           PATHS=$(grep -o '<loc>[^<]*</loc>' /tmp/sitemap.xml \
             | sed -e 's|<loc>||' -e 's|</loc>||' \
-            | sed -e 's|https\?://[^/]*||' \
-            | grep -v '^/\?$' || true)
+            | sed -e 's|https\?://[^/]*||' || true)
 
           for p in $PATHS; do
             case "$p" in
               */sitemap.xml) continue ;;
             esac
-            out="dist/client${p%/}/index.html"
+            # strip the base path to get the location inside dist/client
+            rel="${p#$BASE}"
+            rel="${rel%/}"
+            [ -n "$rel" ] || continue
+            out="dist/client${rel}/index.html"
             mkdir -p "$(dirname "$out")"
             curl -sSL "http://localhost:8788${p}" > "$out"
             echo "Captured $out ($(wc -c < "$out") bytes)"
           done
+
 
           # SPA-style fallback for any unlisted path.
           cp dist/client/index.html dist/client/404.html
